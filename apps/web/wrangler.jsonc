@@ -1,0 +1,16 @@
+{
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "name": "multiaccount-mcp-gateway-docs",
+  "compatibility_date": "2026-10-01",
+  // No `main`: the Worker only serves the static export `pnpm build` writes.
+  "assets": {
+    "directory": "./out",
+    "not_found_handling": "404-page",
+  },
+  "routes": [
+    {
+      "pattern": "multiaccount-mcp-gateway.simoneergotino.it",
+      "custom_domain": true,
+    },
+  ],
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "multiaccount-mcp-gateway",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  // Without it the OAuth library refuses to advertise CIMD: client metadata
+  // fetches could otherwise reach same-zone origins (SSRF).
+  "compatibility_flags": ["global_fetch_strictly_public"],
+  // Accounts and services are configured in the dashboard; a redeploy from Git
+  // must not wipe the variables set there.
+  "keep_vars": true,
+  "kv_namespaces": [{ "binding": "OAUTH_KV" }],
+  "ratelimits": [
+    {
+      "name": "LOGIN_LIMITER",
+      "namespace_id": "1001",
+      "simple": { "limit": 10, "period": 60 },
+    },
+  ],
+  "observability": { "enabled": true },
+}

@@ -1,0 +1,52 @@
+{
+  "name": "multiaccount-mcp-gateway",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "secret": "node scripts/secret.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p scripts",
+    "types": "wrangler types --strict-vars=false --env-file .dev.vars.example",
+    "lint": "oxlint --type-aware",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "packageManager": "pnpm@11.4.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "dependencies": {
+    "@cloudflare/workers-oauth-provider": "1.2.3"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "^1.4.2",
+    "@prettier/plugin-oxc": "^0.2.3",
+    "@types/node": "^24.19.2",
+    "oxlint": "1.88.0",
+    "oxlint-tsgolint": "^7.0.2004",
+    "prettier": "^3.9.10",
+    "typescript": "7.0.2",
+    "vitest": "^4.1.11",
+    "wrangler": "4.151.0"
+  },
+  "description": "Use several accounts of the same MCP service from claude.ai and Claude Code: one connector URL per account.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ergo04/multiaccount-mcp-gateway",
+    "directory": "apps/gateway"
+  },
+  "cloudflare": {
+    "bindings": {
+      "OWNER_PASSWORD": {
+        "description": "The password you type when approving a connector. Use a long random value, e.g. `openssl rand -base64 24`, and keep it in your password manager."
+      },
+      "OAUTH_KV": {
+        "description": "Stores OAuth clients and grants. Created for you."
+      }
+    }
+  }
+}
