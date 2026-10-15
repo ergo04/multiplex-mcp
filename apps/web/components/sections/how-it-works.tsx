@@ -11,27 +11,32 @@ export function HowItWorksSection() {
       label="How it works"
       title="One URL per account, one API key behind each"
     >
-      <p>
-        Every account you add becomes a connector at{" "}
-        <Code>
-          https://&lt;your-gateway&gt;/m/&lt;service&gt;/&lt;account&gt;/mcp
-        </Code>
-        . The account comes from the name of the secret that holds its key:
-      </p>
+      <div className="wide grid items-center gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+        <div className="flex flex-col gap-6">
+          <p>
+            Every account you add becomes a connector at{" "}
+            <Code>
+              https://&lt;your-gateway&gt;/m/&lt;service&gt;/&lt;account&gt;/mcp
+            </Code>
+            . The account comes from the name of the secret that holds its key:
+          </p>
 
-      <VarList
-        label="Worker secret → connector URL"
-        arrow
-        rows={[
-          ["ACCOUNT_RESEND_WORK", "/m/resend/work/mcp"],
-          ["ACCOUNT_RESEND_PERSONAL", "/m/resend/personal/mcp"],
-          ["ACCOUNT_LINEAR_ACME", "/m/linear/acme/mcp"],
-        ]}
-      />
+          <VarList
+            label="Worker secret → connector URL"
+            arrow
+            rows={[
+              ["ACCOUNT_RESEND_WORK", "/m/resend/work/mcp"],
+              ["ACCOUNT_RESEND_PERSONAL", "/m/resend/personal/mcp"],
+              ["ACCOUNT_LINEAR_ACME", "/m/linear/acme/mcp"],
+            ]}
+          />
+        </div>
+        <HairlineFigure name="gateway" />
+      </div>
 
-      <HairlineFigure name="gateway" />
-
-      <FlowDiagram />
+      <div className="wide">
+        <FlowDiagram />
+      </div>
 
       <ol className="flex list-decimal flex-col gap-3 pl-5 marker:text-muted-foreground">
         <li>

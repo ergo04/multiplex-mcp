@@ -1,17 +1,18 @@
-import { buttonClass } from "@/lib/button"
-import { REPO_URL } from "@/lib/links"
+import { ArrowDown } from "lucide-react"
+import { CONTAINER } from "@/lib/layout"
 import { SECTIONS } from "@/lib/sections"
 import { Badge } from "@/components/ui/badge"
 import { SectionLabel } from "@/components/ui/section-label"
 import { Code } from "@/components/ui/code"
 import { DeployButton } from "@/components/ui/deploy-button"
-import { GitHubMark } from "@/components/ui/github-mark"
 
 export function HeroSection() {
   return (
     <section className="border-b border-border/60">
-      <div className="mx-auto max-w-3xl px-5 pt-16 pb-14 sm:px-6 sm:pt-24 sm:pb-20">
-        <div className="flex flex-col gap-6">
+      <div
+        className={`${CONTAINER} grid gap-12 pt-16 pb-14 sm:pt-24 sm:pb-20 lg:grid-cols-[minmax(0,1fr)_14rem] lg:items-end`}
+      >
+        <div className="flex max-w-3xl flex-col gap-6">
           <div className="flex flex-wrap gap-2">
             <Badge>Cloudflare Worker</Badge>
             <Badge>claude.ai + Claude Code</Badge>
@@ -34,38 +35,40 @@ export function HeroSection() {
             the real MCP server with that account&apos;s API key.
           </p>
 
-          <div className="flex flex-wrap items-center gap-3 pt-2">
+          {/* One primary action: the Deploy button has its own look, so the
+              second way in is a plain link that can't compete with it. */}
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-2">
             <DeployButton />
-            <a href="#setup" className={buttonClass({ size: "lg" })}>
-              Read the setup
-            </a>
             <a
-              href={REPO_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={buttonClass({ variant: "outline", size: "lg" })}
+              href="#setup"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline decoration-border underline-offset-4 transition-colors hover:decoration-foreground"
             >
-              <GitHubMark />
-              Source
+              Read the setup
+              <ArrowDown aria-hidden className="size-3.5" />
             </a>
           </div>
-
-          <nav aria-label="On this page" className="pt-6">
-            <SectionLabel>On this page</SectionLabel>
-            <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm">
-              {SECTIONS.map((item) => (
-                <li key={item.id}>
-                  <a
-                    href={`#${item.id}`}
-                    className="text-muted-foreground underline decoration-border underline-offset-4 transition-colors hover:text-foreground hover:decoration-foreground"
-                  >
-                    {item.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
         </div>
+
+        <nav aria-label="On this page">
+          <SectionLabel>On this page</SectionLabel>
+          <ol className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm lg:flex-col lg:gap-y-1.5">
+            {SECTIONS.map((item, index) => (
+              <li key={item.id}>
+                <a
+                  href={`#${item.id}`}
+                  className="group inline-flex gap-2 text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <span className="hidden text-foreground tabular-nums lg:inline">
+                    {String(index + 1).padStart(2, "0")}.
+                  </span>
+                  <span className="underline decoration-border underline-offset-4 group-hover:decoration-foreground lg:no-underline">
+                    {item.label}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
       </div>
     </section>
   )

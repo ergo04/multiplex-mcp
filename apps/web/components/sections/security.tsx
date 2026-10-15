@@ -1,11 +1,26 @@
 import type { ReactNode } from "react"
+import { cn } from "@/lib/cn"
 import { Code } from "@/components/ui/code"
-import { Section, Strong, TextLink } from "@/components/ui/section"
+import { Section, TextLink } from "@/components/ui/section"
 import { NO_REFRESH_ISSUE } from "@/lib/links"
 
-function Point({ title, children }: { title: string; children: ReactNode }) {
+function Point({
+  title,
+  caveat = false,
+  children,
+}: {
+  title: string
+  caveat?: boolean
+  children: ReactNode
+}) {
   return (
-    <li className="flex min-w-0 flex-col gap-2 rounded-lg border border-border bg-background p-4">
+    <li
+      className={cn(
+        "flex min-w-0 flex-col gap-2 rounded-lg border bg-background p-4",
+        // The limit is marked with weight, not orange: the accent is for actions.
+        caveat ? "border-foreground/50" : "border-border"
+      )}
+    >
       <h3 className="text-sm font-medium text-foreground">{title}</h3>
       <p>{children}</p>
     </li>
@@ -20,7 +35,7 @@ export function SecuritySection() {
       title="What keeps your accounts yours"
       muted
     >
-      <ul className="grid gap-3 sm:grid-cols-2">
+      <ul className="wide grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <Point title="One owner, one password">
           The status page and the consent page ask for{" "}
           <Code>OWNER_PASSWORD</Code>, at most 10 attempts a minute per IP.
@@ -62,13 +77,11 @@ export function SecuritySection() {
           Signed out, the home page shows only counts. Problem details name the
           variable at fault, and only after you sign in.
         </Point>
+        <Point title="The other side of it" caveat>
+          Whoever has the password, or a client token, reaches every account
+          that password or token opens. Treat them like the API keys themselves.
+        </Point>
       </ul>
-
-      <p>
-        <Strong>The other side of it.</Strong> Whoever has the password, or a
-        client token, reaches every account that password or token opens. Treat
-        them like the API keys themselves.
-      </p>
     </Section>
   )
 }

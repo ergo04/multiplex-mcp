@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { buttonClass } from "@/lib/button"
+import { CONTAINER } from "@/lib/layout"
 import { SectionLabel } from "@/components/ui/section-label"
 
 export const metadata: Metadata = {
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <section className="mx-auto flex max-w-3xl flex-col items-start gap-6 px-5 py-24 sm:px-6">
+    <section className={`${CONTAINER} flex flex-col items-start gap-6 py-24`}>
       <SectionLabel>404</SectionLabel>
       <h1 className="text-3xl">Nothing at this address</h1>
       <p className="text-sm leading-relaxed text-muted-foreground">

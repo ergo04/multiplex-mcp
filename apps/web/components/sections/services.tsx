@@ -30,7 +30,7 @@ export function ServicesSection() {
         key as a bearer token.
       </p>
 
-      <ul className="grid gap-3 sm:grid-cols-2">
+      <ul className="wide grid gap-3 sm:grid-cols-2">
         {BUILT_IN.map((service) => (
           <li
             key={service.name}

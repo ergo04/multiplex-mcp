@@ -1,5 +1,6 @@
 import { buttonClass } from "@/lib/button"
 import { MupxMark } from "@/components/ui/mupx-mark"
+import { CONTAINER } from "@/lib/layout"
 import { REPO_URL } from "@/lib/links"
 import { GitHubMark } from "@/components/ui/github-mark"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
@@ -14,7 +15,9 @@ const NAV = [
 export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+      <div
+        className={`${CONTAINER} flex items-center justify-between gap-3 py-3`}
+      >
         <a href="/" className="flex min-w-0 items-center gap-2">
           <MupxMark className="size-6 shrink-0 text-foreground" />
           <span className="truncate font-display text-[0.95rem] font-semibold tracking-tight">

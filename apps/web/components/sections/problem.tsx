@@ -15,8 +15,8 @@ export function ProblemSection() {
         and claude.ai let me add only the first. Three things get in the way.
       </p>
 
-      <ol className="flex flex-col gap-4">
-        <li>
+      <ol className="wide grid gap-3 lg:grid-cols-3">
+        <li className="rounded-lg border border-border bg-background p-4">
           <Strong>The same URL is refused.</Strong> claude.ai won&apos;t add a
           custom connector whose URL it already has (
           <TextLink href={DUPLICATE_URL_ISSUE}>
@@ -25,12 +25,12 @@ export function ProblemSection() {
           , open as I write this). Two Resend accounts both live at{" "}
           <Code>https://mcp.resend.com/mcp</Code>.
         </li>
-        <li>
+        <li className="rounded-lg border border-border bg-background p-4">
           <Strong>The connector form can&apos;t send headers.</Strong> It has a
           URL field and OAuth client fields, nothing else. So there&apos;s no
           way to tell one URL which API key to use.
         </li>
-        <li>
+        <li className="rounded-lg border border-border bg-background p-4">
           <Strong>The query string trick is unreliable.</Strong> Adding{" "}
           <Code>?account=work</Code> makes the URL unique. It works with some
           OAuth servers and fails with others (Google and Zoho, for example),

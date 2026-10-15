@@ -1,6 +1,7 @@
 import type { ReactNode } from "react"
 import { cn } from "@/lib/cn"
 import { SectionLabel } from "@/components/ui/section-label"
+import { CONTAINER } from "@/lib/layout"
 import { sectionIndex } from "@/lib/sections"
 
 export function Section({
@@ -22,7 +23,7 @@ export function Section({
       aria-labelledby={`${id}-title`}
       className={cn("border-b border-border/60", muted && "bg-muted/30")}
     >
-      <div className="mx-auto max-w-3xl px-5 py-16 sm:px-6 sm:py-20">
+      <div className={cn(CONTAINER, "py-16 sm:py-24")}>
         <SectionLabel index={sectionIndex(id)}>{label}</SectionLabel>
         <h2
           id={`${id}-title`}
@@ -30,7 +31,8 @@ export function Section({
         >
           {title}
         </h2>
-        <div className="mt-8 flex flex-col gap-6 text-sm leading-relaxed text-muted-foreground">
+        {/* Running text keeps a readable measure; grids and figures opt out with `wide`. */}
+        <div className="mt-10 flex flex-col gap-6 text-sm leading-relaxed text-muted-foreground [&>*:not(.wide)]:max-w-3xl">
           {children}
         </div>
       </div>

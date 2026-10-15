@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react"
 import { BrandMark } from "@/components/ui/brand-mark"
+import { CONTAINER } from "@/lib/layout"
 import { AUTHOR_URL, PREDECESSOR_URL, REPO_URL } from "@/lib/links"
 
 const LINKS = [
@@ -10,12 +11,12 @@ const LINKS = [
 export function Footer() {
   return (
     <footer>
-      <div className="mx-auto flex max-w-3xl flex-col gap-8 px-5 py-12 sm:px-6">
+      <div className={`${CONTAINER} flex flex-col gap-8 py-12`}>
         <a
           href={AUTHOR_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="group flex items-start gap-4 rounded-2xl border border-border bg-card p-5 transition-colors hover:border-foreground/30"
+          className="group flex max-w-2xl items-start gap-4 rounded-2xl border border-border bg-card p-5 transition-colors hover:border-foreground/30"
         >
           <BrandMark className="mt-0.5 size-8 shrink-0 text-foreground" />
           <span className="flex min-w-0 flex-col gap-1.5">
