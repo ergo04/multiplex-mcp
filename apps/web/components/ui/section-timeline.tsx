@@ -25,7 +25,11 @@ export function SectionTimeline() {
           ?.getBoundingClientRect().top
         if (top !== undefined && top <= line) current = index
       })
-      setActive(current)
+      // The last sections are too short to reach the line before the page ends.
+      const atBottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 4
+      setActive(atBottom ? SECTIONS.length - 1 : current)
     }
     update()
     // An anchor in the URL scrolls after this first run, without a scroll event
