@@ -4,6 +4,11 @@ import type { Connector, Settings } from "./config"
 
 export const DOCS_URL = "https://mupx.simoneergotino.it"
 
+// The project's own icon, inline because these pages load nothing else.
+const ICON_HREF = `data:image/svg+xml,${encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><rect width="256" height="256" rx="56" fill="#0e0e0e"/><path fill="#f9f9f9" d="M41 44H167A9 9 0 0 1 176 53V203A9 9 0 0 1 167 212H41A9 9 0 0 1 32 203V185A9 9 0 0 1 41 176H140V146H41A9 9 0 0 1 32 137V119A9 9 0 0 1 41 110H140V80H41A9 9 0 0 1 32 71V53A9 9 0 0 1 41 44Z"/><path fill="#ff6a2d" d="M176 110H215A9 9 0 0 1 224 119V137A9 9 0 0 1 215 146H176Z"/></svg>'
+)}`
+
 const escape = (value: string) =>
   value.replace(/[&<>"']/g, (char) => `&#${char.charCodeAt(0)};`)
 
@@ -24,7 +29,7 @@ const STYLE = `
 
 const HEADERS = {
   "Content-Type": "text/html; charset=utf-8",
-  "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'",
+  "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; img-src data:",
   "Cache-Control": "no-store",
   "X-Robots-Tag": "noindex",
   "X-Frame-Options": "DENY",
@@ -36,6 +41,7 @@ function layout(title: string, body: string): string {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
+<link rel="icon" href="${ICON_HREF}">
 <title>${escape(title)}</title>
 <style>${STYLE}</style>
 <body>

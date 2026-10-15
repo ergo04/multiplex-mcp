@@ -1,5 +1,6 @@
 import { Code } from "@/components/ui/code"
 import { FlowDiagram } from "@/components/ui/flow-diagram"
+import { HairlineFigure } from "@/components/ui/hairline-figure"
 import { Section, Strong } from "@/components/ui/section"
 import { VarList } from "@/components/ui/var-list"
 
@@ -27,6 +28,8 @@ export function HowItWorksSection() {
           ["ACCOUNT_LINEAR_ACME", "/m/linear/acme/mcp"],
         ]}
       />
+
+      <HairlineFigure name="gateway" />
 
       <FlowDiagram />
 

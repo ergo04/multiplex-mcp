@@ -71,6 +71,24 @@
   --ring: #ff6a2d;
 }
 
+/* Hairline's public theme, as on simoneergotino.it: lines in the board's
+   greys, the one bright stroke in orange. Plates take the page's colour,
+   so a near solid covers what is behind it. */
+:root {
+  --hairline-plate: var(--background);
+  --hairline-hi: var(--primary);
+  --hairline-edge: #6e6e6e;
+  --hairline-mid: #b4b4b4;
+  --hairline-lo: #dcdcdc;
+  --hairline-stroke: 1;
+}
+
+.dark {
+  --hairline-edge: #9a9a9a;
+  --hairline-mid: #4a4a4a;
+  --hairline-lo: #2a2a2a;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

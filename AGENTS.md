@@ -8,6 +8,7 @@ Code. Start from [README.md](README.md).
 | -------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `apps/gateway` | the Worker; must stay self-contained (own lockfile, no workspace deps) because the Deploy to Cloudflare button copies only this folder |
 | `apps/web`     | the public documentation site (Next.js static export on Workers assets)                                                                |
+| `brand/`       | the mupx mark (`mupx-mark*.svg`) and app icon (`mupx-icon.svg`); the site and the gateway pages use the same geometry                  |
 | `notes/`       | Simone's private planning notes; gitignored, never published                                                                           |
 
 ## Language

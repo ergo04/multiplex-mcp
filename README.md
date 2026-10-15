@@ -1,3 +1,8 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="brand/mupx-mark-white.svg">
+  <img src="brand/mupx-mark.svg" alt="" width="72" height="72">
+</picture>
+
 # mupx
 
 **Multiplex MCP: one connector per account.** Use two Resend accounts, three Linear
@@ -117,6 +122,7 @@ the dashboard and its code never changes.
 | ------------------------------ | -------------------------------------------------------------------- |
 | [`apps/gateway`](apps/gateway) | the Worker you deploy; self-contained, which the Deploy button needs |
 | [`apps/web`](apps/web)         | the documentation site                                               |
+| [`brand`](brand)               | the mupx mark and icon, as SVG                                       |
 
 The gateway runs on the Workers free plan: 100,000 requests a day, and plain
 forwarding uses almost no CPU.
