@@ -23,14 +23,13 @@ export function ServicesSection() {
       id="services"
       label="Services"
       title="Linear, Resend, or any MCP server that takes an API key"
-      muted
     >
       <p>
         Two services are built in. I only list servers I checked accept an API
         key as a bearer token.
       </p>
 
-      <ul className="wide grid gap-3 sm:grid-cols-2">
+      <ul className="grid gap-3 sm:grid-cols-2">
         {BUILT_IN.map((service) => (
           <li
             key={service.name}
@@ -47,6 +46,15 @@ export function ServicesSection() {
           </li>
         ))}
       </ul>
+
+      <p>
+        On its merged connector, Linear can also have ten tools the gateway runs
+        itself against Linear&apos;s API, for what its MCP can&apos;t do:
+        deleting and reordering milestones, assigning issues to a milestone in
+        one call, archiving and restoring projects and initiatives, and linking
+        projects to initiatives. Turn them on with{" "}
+        <Code>SERVICE_LINEAR_EXTRA_TOOLS</Code>.
+      </p>
 
       <h3 className="pt-4 text-base font-medium text-foreground">
         Any other server

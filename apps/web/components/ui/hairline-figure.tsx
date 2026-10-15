@@ -3,10 +3,11 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react"
 import { DEFAULT_SIZE, mountFigure } from "@/lib/hairline/figure"
 import { figure as gateway } from "@/lib/hairline/figures/gateway"
+import { figure as mark } from "@/lib/hairline/figures/mark"
 import { cn } from "@/lib/cn"
 
 // Engines are functions, so a server component picks a figure by name.
-const figures = { gateway }
+const figures = { gateway, mark }
 
 /**
  * A Hairline figure whose read-out is a caption beside the pointer: nothing

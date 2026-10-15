@@ -5,12 +5,13 @@ import { Badge } from "@/components/ui/badge"
 import { SectionLabel } from "@/components/ui/section-label"
 import { Code } from "@/components/ui/code"
 import { DeployButton } from "@/components/ui/deploy-button"
+import { HairlineFigure } from "@/components/ui/hairline-figure"
 
 export function HeroSection() {
   return (
     <section className="border-b border-border/60">
       <div
-        className={`${CONTAINER} grid gap-12 pt-16 pb-14 sm:pt-24 sm:pb-20 lg:grid-cols-[minmax(0,1fr)_14rem] lg:items-end`}
+        className={`${CONTAINER} grid gap-12 pt-16 pb-14 sm:pt-24 sm:pb-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:items-center xl:grid-cols-[minmax(0,1fr)_minmax(0,30rem)]`}
       >
         <div className="flex max-w-3xl flex-col gap-6">
           <div className="flex flex-wrap gap-2">
@@ -26,13 +27,14 @@ export function HeroSection() {
             </span>
           </h1>
 
-          <p className="text-base leading-relaxed text-muted-foreground">
+          <p className="text-base leading-7 text-prose">
             claude.ai takes a custom connector once per URL, so a second Resend
             account or a third Linear workspace has no way in. This is a
             Cloudflare Worker you deploy in your own account. It gives every
             account its own URL, like <Code>/m/resend/work/mcp</Code> and{" "}
             <Code>/m/resend/personal/mcp</Code>, and forwards each request to
-            the real MCP server with that account&apos;s API key.
+            the real MCP server with that account&apos;s API key. Or, per
+            service, one URL for all of them, with the account as an argument.
           </p>
 
           {/* One primary action: the Deploy button has its own look, so the
@@ -49,19 +51,24 @@ export function HeroSection() {
           </div>
         </div>
 
-        <nav aria-label="On this page">
+        <HairlineFigure
+          name="mark"
+          className="mx-auto w-full max-w-[24rem] lg:max-w-none"
+        />
+
+        <nav aria-label="On this page" className="lg:hidden">
           <SectionLabel>On this page</SectionLabel>
-          <ol className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm lg:flex-col lg:gap-y-1.5">
+          <ol className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm">
             {SECTIONS.map((item, index) => (
               <li key={item.id}>
                 <a
                   href={`#${item.id}`}
                   className="group inline-flex gap-2 text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  <span className="hidden text-foreground tabular-nums lg:inline">
+                  <span className="sr-only">
                     {String(index + 1).padStart(2, "0")}.
                   </span>
-                  <span className="underline decoration-border underline-offset-4 group-hover:decoration-foreground lg:no-underline">
+                  <span className="underline decoration-border underline-offset-4 group-hover:decoration-foreground">
                     {item.label}
                   </span>
                 </a>

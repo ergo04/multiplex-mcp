@@ -23,6 +23,7 @@
   --color-border: var(--border);
   --color-ring: var(--ring);
   --color-accent-soft: var(--accent-soft);
+  --color-prose: var(--prose);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -43,6 +44,8 @@
   --secondary-foreground: #0e0e0e;
   --muted: #f1f1f1;
   --muted-foreground: #6e6e6e;
+  /* Running text: the brand's secondary ink, darker than the grey of labels. */
+  --prose: #3a3a3a;
   --accent: #f1f1f1;
   --accent-foreground: #0e0e0e;
   --accent-soft: rgba(240, 82, 27, 0.09);
@@ -64,6 +67,7 @@
   --secondary-foreground: #f9f9f9;
   --muted: #151515;
   --muted-foreground: #8c8c8c;
+  --prose: #d6d6d6;
   --accent: #151515;
   --accent-foreground: #f9f9f9;
   --accent-soft: rgba(255, 106, 45, 0.12);

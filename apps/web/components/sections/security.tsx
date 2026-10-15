@@ -33,9 +33,8 @@ export function SecuritySection() {
       id="security"
       label="Security"
       title="What keeps your accounts yours"
-      muted
     >
-      <ul className="wide grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         <Point title="One owner, one password">
           The status page and the consent page ask for{" "}
           <Code>OWNER_PASSWORD</Code>, at most 10 attempts a minute per IP.

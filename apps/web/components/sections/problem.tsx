@@ -8,14 +8,13 @@ export function ProblemSection() {
       id="problem"
       label="The problem"
       title="Why claude.ai takes only one account per service"
-      muted
     >
       <p>
         I built this because I use more than one account of the same services,
         and claude.ai let me add only the first. Three things get in the way.
       </p>
 
-      <ol className="wide grid gap-3 lg:grid-cols-3">
+      <ol className="grid gap-3 xl:grid-cols-3">
         <li className="rounded-lg border border-border bg-background p-4">
           <Strong>The same URL is refused.</Strong> claude.ai won&apos;t add a
           custom connector whose URL it already has (

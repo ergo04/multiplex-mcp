@@ -10,7 +10,6 @@ export function SetupSection() {
       id="setup"
       label="Setup"
       title="From the Deploy button to your first connector"
-      muted
     >
       <p>
         You need a Cloudflare account (the free plan is enough), a GitHub or
