@@ -13,14 +13,25 @@ export function LimitsSection() {
           1,000 writes a day, and the gateway writes when it issues tokens.
         </li>
         <li>
+          <Strong>The merged connector&apos;s tool list</Strong> is the one
+          request that costs real CPU: it asks every account, then merges the
+          lists. With three Linear workspaces, about 70 tools and 115 KB each,
+          that took a few milliseconds in my measurements, and under one once
+          cached. The list is cached for five minutes with the Cache API, which
+          only works on a custom domain: on <Code>workers.dev</Code> every list
+          asks every account again.
+        </li>
+        <li>
+          <Strong>The merged connector is for stateless servers</Strong>, like
+          Linear&apos;s and Resend&apos;s, which answer without an MCP session.
+          It answers <Code>initialize</Code> itself and keeps no session per
+          account, so a server that needs one only works through its per-account
+          URLs.
+        </li>
+        <li>
           <Strong>Upstreams that only speak OAuth</Strong>, like Vercel&apos;s
           MCP, aren&apos;t supported yet. The gateway needs an API key to send.
           It&apos;s planned.
-        </li>
-        <li>
-          <Strong>A merged mode</Strong> isn&apos;t there yet either: one URL
-          per service, with an <Code>account</Code> argument on every tool. Also
-          planned.
         </li>
         <li>
           <Strong>One owner.</Strong> There is one password and no user
@@ -29,10 +40,10 @@ export function LimitsSection() {
       </ul>
 
       <p>
-        If you only need Linear,{" "}
-        <TextLink href={PREDECESSOR_URL}>linear-mcp-gateway</TextLink>, the
-        project this one grew out of, puts every workspace behind a single
-        connection with a <Code>workspace</Code> argument on each tool.
+        The merged connector grew out of{" "}
+        <TextLink href={PREDECESSOR_URL}>linear-mcp-gateway</TextLink>, which
+        did the same for Linear workspaces only, with the same{" "}
+        <Code>workspace</Code> argument and the same extra tools.
       </p>
     </Section>
   )

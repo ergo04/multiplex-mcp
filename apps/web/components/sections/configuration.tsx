@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
 import { CodeBlock } from "@/components/ui/code-block"
 import { Code } from "@/components/ui/code"
-import { Section, Strong } from "@/components/ui/section"
+import { Section, Strong, TextLink } from "@/components/ui/section"
 
 interface Variable {
   name: string
@@ -29,7 +29,8 @@ const VARIABLES: Variable[] = [
     children: (
       <>
         One per account: its API key. Becomes the connector{" "}
-        <Code>/m/&lt;service&gt;/&lt;account&gt;/mcp</Code>.
+        <Code>/m/&lt;service&gt;/&lt;account&gt;/mcp</Code>, and part of{" "}
+        <Code>/u/&lt;service&gt;/mcp</Code> when the service is merged.
       </>
     ),
   },
@@ -54,6 +55,47 @@ const VARIABLES: Variable[] = [
     kind: "variable",
     fallback: "the built-in name, or the service slug",
     children: <>Display name on the status and consent pages.</>,
+  },
+  {
+    name: "SERVICE_<NAME>_MERGED",
+    kind: "variable",
+    fallback: "off",
+    children: (
+      <>
+        <Code>true</Code> adds the merged connector{" "}
+        <Code>/u/&lt;service&gt;/mcp</Code>: every account of the service behind
+        one URL, picked with an argument on each tool. See{" "}
+        <TextLink href="#how-it-works">How it works</TextLink>.
+      </>
+    ),
+  },
+  {
+    name: "SERVICE_<NAME>_ACCOUNT_PARAM",
+    kind: "variable",
+    fallback: (
+      <>
+        <Code>account</Code>; <Code>workspace</Code> for Linear
+      </>
+    ),
+    children: (
+      <>
+        The name of that argument on the merged connector. Lowercase letters,
+        digits and <Code>_</Code>.
+      </>
+    ),
+  },
+  {
+    name: "SERVICE_<NAME>_EXTRA_TOOLS",
+    kind: "variable",
+    fallback: "off",
+    children: (
+      <>
+        <Code>true</Code> adds the tools the gateway runs itself for that
+        service, on the merged connector only. Linear is the one service that
+        has them: ten tools for what its MCP can&apos;t do, like deleting a
+        milestone or archiving a project.
+      </>
+    ),
   },
   {
     name: "CLIENT_TOKEN_<NAME>",

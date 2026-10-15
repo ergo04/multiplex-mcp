@@ -77,4 +77,73 @@ describe("settings from env", () => {
     expect(settings.accessTokenDays).toBe(30)
     expect(settings.refreshTokenDays).toBe(7)
   })
+
+  it("adds a merged endpoint for a service that asks for one", () => {
+    const settings = readSettings({
+      ACCOUNT_LINEAR_EGIX: "lin_1",
+      ACCOUNT_LINEAR_SOLV: "lin_2",
+      ACCOUNT_RESEND_WORK: "re_1",
+      SERVICE_LINEAR_MERGED: "true",
+      SERVICE_LINEAR_EXTRA_TOOLS: "true",
+      CLIENT_TOKEN_CLOUD: "x".repeat(40),
+      CLIENT_PATHS_CLOUD: "/u/linear/mcp",
+      OWNER_PASSWORD: "x",
+    })
+    expect(settings.merged).toHaveLength(1)
+    expect(settings.merged[0]).toMatchObject({
+      path: "/u/linear/mcp",
+      label: "Linear · all workspaces",
+      accountParam: "workspace",
+      extraTools: true,
+    })
+    expect(settings.merged[0]!.accounts.map((a) => a.account)).toEqual([
+      "egix",
+      "solv",
+    ])
+    expect(settings.problems).toEqual([])
+  })
+
+  it("names the account argument as configured, or `account`", () => {
+    const named = readSettings({
+      ACCOUNT_RESEND_WORK: "re_1",
+      SERVICE_RESEND_MERGED: "true",
+      SERVICE_RESEND_ACCOUNT_PARAM: "team",
+      OWNER_PASSWORD: "x",
+    })
+    expect(named.merged[0]?.accountParam).toBe("team")
+
+    const fallback = readSettings({
+      ACCOUNT_RESEND_WORK: "re_1",
+      SERVICE_RESEND_MERGED: "true",
+      SERVICE_RESEND_ACCOUNT_PARAM: "Not Valid",
+      OWNER_PASSWORD: "x",
+    })
+    expect(fallback.merged[0]?.accountParam).toBe("account")
+    expect(fallback.problems[0]?.detail).toContain(
+      "SERVICE_RESEND_ACCOUNT_PARAM"
+    )
+  })
+
+  it("reports merged settings that cannot work", () => {
+    const settings = readSettings({
+      ACCOUNT_RESEND_WORK: "re_1",
+      SERVICE_RESEND_EXTRA_TOOLS: "true",
+      ACCOUNT_LINEAR_EGIX: "lin_1",
+      SERVICE_LINEAR_EXTRA_TOOLS: "true",
+      SERVICE_ZQEMPTY_MERGED: "true",
+      SERVICE_LINEAR_MERGE: "true",
+      OWNER_PASSWORD: "x",
+    })
+    expect(settings.merged).toEqual([])
+    const details = settings.problems.map((p) => p.detail).join("\n")
+    for (const expected of [
+      "SERVICE_RESEND_EXTRA_TOOLS: extra tools exist for linear",
+      "SERVICE_LINEAR_EXTRA_TOOLS: also set SERVICE_LINEAR_MERGED=true",
+      "SERVICE_ZQEMPTY_MERGED",
+      "SERVICE_LINEAR_MERGE:",
+    ])
+      expect(details).toContain(expected)
+    for (const problem of settings.problems)
+      expect(problem.summary.toLowerCase()).not.toMatch(/zq|linear|resend/)
+  })
 })

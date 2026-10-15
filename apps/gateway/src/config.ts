@@ -1,3 +1,4 @@
+import { EXTRA_TOOLS } from "./merged/extra-tools"
 import { KNOWN_SERVICES, type UpstreamAuth } from "./services"
 
 /**
@@ -5,20 +6,25 @@ import { KNOWN_SERVICES, type UpstreamAuth } from "./services"
  * made with the Deploy to Cloudflare button is configured from the dashboard
  * without touching code:
  *
- *   ACCOUNT_<SERVICE>_<ACCOUNT>   secret  the account's credential (one per account)
- *   SERVICE_<SERVICE>_URL         var     upstream of a service not built in
- *   SERVICE_<SERVICE>_HEADER      var     send the credential in this header, not as Bearer
- *   SERVICE_<SERVICE>_NAME        var     display name
- *   CLIENT_TOKEN_<CLIENT>         secret  static bearer token for a header-capable client
- *   CLIENT_PATHS_<CLIENT>         var     comma-separated connector paths it may open
- *   OWNER_PASSWORD                secret  the consent page's password
- *   PUBLIC_URL                    var     pin one origin; otherwise the request's
+ *   ACCOUNT_<SERVICE>_<ACCOUNT>     secret  the account's credential (one per account)
+ *   SERVICE_<SERVICE>_URL           var     upstream of a service not built in
+ *   SERVICE_<SERVICE>_HEADER        var     send the credential in this header, not as Bearer
+ *   SERVICE_<SERVICE>_NAME          var     display name
+ *   SERVICE_<SERVICE>_MERGED        var     `true` adds /u/<service>/mcp for every account
+ *   SERVICE_<SERVICE>_ACCOUNT_PARAM var     the merged endpoint's account argument
+ *   SERVICE_<SERVICE>_EXTRA_TOOLS   var     `true` adds the service's gateway-side tools
+ *   CLIENT_TOKEN_<CLIENT>           secret  static bearer token for a header-capable client
+ *   CLIENT_PATHS_<CLIENT>           var     comma-separated connector paths it may open
+ *   OWNER_PASSWORD                  secret  the consent page's password
+ *   PUBLIC_URL                      var     pin one origin; otherwise the request's
  *   ACCESS_TOKEN_DAYS, REFRESH_TOKEN_DAYS, ALLOWED_CLIENTS, DYNAMIC_REGISTRATION
  */
 
 export interface Connector {
+  kind: "account"
   path: string
   service: string
+  serviceName: string
   account: string
   label: string
   upstream: URL
@@ -26,6 +32,21 @@ export interface Connector {
   credential: string
   variable: string
 }
+
+/** One endpoint for every account of a service, told apart by an argument. */
+export interface MergedConnector {
+  kind: "merged"
+  path: string
+  service: string
+  serviceName: string
+  label: string
+  accountParam: string
+  extraTools: boolean
+  /** Sorted by account name, which keeps the merged tool list deterministic. */
+  accounts: Connector[]
+}
+
+export type Endpoint = Connector | MergedConnector
 
 export interface StaticClient {
   name: string
@@ -42,6 +63,7 @@ export interface Problem {
 
 export interface Settings {
   connectors: Connector[]
+  merged: MergedConnector[]
   clients: StaticClient[]
   ownerPassword?: string
   publicUrl?: string
@@ -60,14 +82,21 @@ export const CLAUDE_CLIENTS = [
 // A guessable static token would open every account at once.
 export const MIN_CLIENT_TOKEN_LENGTH = 32
 
+export const DEFAULT_ACCOUNT_PARAM = "account"
+
 // Variable names are split on `_`, so slugs can't contain one; hyphens are out
 // too, because environment variable names can't carry them.
 const SLUG = "[A-Z][A-Z0-9]*"
 const ACCOUNT = new RegExp(`^ACCOUNT_(${SLUG})_(${SLUG})$`)
-const SERVICE = new RegExp(`^SERVICE_(${SLUG})_(URL|HEADER|NAME)$`)
+const SERVICE = new RegExp(
+  `^SERVICE_(${SLUG})_(URL|HEADER|NAME|MERGED|ACCOUNT_PARAM|EXTRA_TOOLS)$`
+)
 const CLIENT_TOKEN = new RegExp(`^CLIENT_TOKEN_(${SLUG})$`)
 const CLIENT_PATHS = new RegExp(`^CLIENT_PATHS_(${SLUG})$`)
 const HEADER_NAME = /^[A-Za-z0-9-]+$/
+// It becomes a JSON Schema property and a tool name (list_<param>s), so it
+// keeps to the characters both accept everywhere.
+const ACCOUNT_PARAM = /^[a-z][a-z0-9_]{0,31}$/
 
 // Headers the gateway or the runtime own; letting config set them would let a
 // credential overwrite routing or framing.
@@ -75,6 +104,15 @@ const RESERVED_HEADERS = new Set(["host", "content-length", "cookie"])
 
 export function connectorPath(service: string, account: string): string {
   return `/m/${service}/${account}/mcp`
+}
+
+export function mergedPath(service: string): string {
+  return `/u/${service}/mcp`
+}
+
+/** Every endpoint the gateway serves, each an OAuth resource of its own. */
+export function endpoints(settings: Settings): Endpoint[] {
+  return [...settings.connectors, ...settings.merged]
 }
 
 function text(value: unknown): string | undefined {
@@ -106,6 +144,22 @@ interface ServiceOverride {
   url?: string
   header?: string
   name?: string
+  merged?: string
+  accountParam?: string
+  extraTools?: string
+}
+
+const SERVICE_FIELDS: Record<string, keyof ServiceOverride> = {
+  URL: "url",
+  HEADER: "header",
+  NAME: "name",
+  MERGED: "merged",
+  ACCOUNT_PARAM: "accountParam",
+  EXTRA_TOOLS: "extraTools",
+}
+
+function serviceName(service: string, override?: ServiceOverride): string {
+  return override?.name ?? KNOWN_SERVICES[service]?.name ?? service
 }
 
 function resolveConnector(
@@ -161,16 +215,74 @@ function resolveConnector(
         : { type: "header", name: header }
   }
 
-  const name = override?.name ?? known?.name ?? entry.service
+  const name = serviceName(entry.service, override)
   return {
+    kind: "account",
     path: connectorPath(entry.service, entry.account),
     service: entry.service,
+    serviceName: name,
     account: entry.account,
     label: `${name} · ${entry.account}`,
     upstream,
     auth,
     credential: entry.credential,
     variable: entry.variable,
+  }
+}
+
+function resolveMerged(
+  service: string,
+  override: ServiceOverride,
+  connectors: Connector[],
+  problems: Problem[]
+): MergedConnector | undefined {
+  const prefix = `SERVICE_${service.toUpperCase()}`
+  const merged = override.merged === "true"
+  const extraTools = override.extraTools === "true"
+
+  if (extraTools && !EXTRA_TOOLS[service])
+    problems.push({
+      summary: "Extra tools are switched on for a service that has none",
+      detail: `${prefix}_EXTRA_TOOLS: extra tools exist for ${Object.keys(EXTRA_TOOLS).join(", ")}`,
+    })
+  if (extraTools && !merged)
+    problems.push({
+      summary: "Extra tools only exist on a merged endpoint",
+      detail: `${prefix}_EXTRA_TOOLS: also set ${prefix}_MERGED=true`,
+    })
+  if (!merged) return undefined
+
+  const accounts = connectors.filter((c) => c.service === service)
+  if (accounts.length === 0) {
+    problems.push({
+      summary: "A merged endpoint has no accounts",
+      detail: `${prefix}_MERGED: add an ACCOUNT_${service.toUpperCase()}_<ACCOUNT> secret`,
+    })
+    return undefined
+  }
+
+  let accountParam =
+    KNOWN_SERVICES[service]?.accountParam ?? DEFAULT_ACCOUNT_PARAM
+  if (override.accountParam) {
+    if (ACCOUNT_PARAM.test(override.accountParam))
+      accountParam = override.accountParam
+    else
+      problems.push({
+        summary: "A merged endpoint's account argument has an unusable name",
+        detail: `${prefix}_ACCOUNT_PARAM: "${override.accountParam}" (lowercase letters, digits and _; using "${accountParam}")`,
+      })
+  }
+
+  const name = accounts[0]!.serviceName
+  return {
+    kind: "merged",
+    path: mergedPath(service),
+    service,
+    serviceName: name,
+    label: `${name} · all ${accountParam}s`,
+    accountParam,
+    extraTools: extraTools && EXTRA_TOOLS[service] !== undefined,
+    accounts,
   }
 }
 
@@ -206,8 +318,16 @@ export function readSettings(env: object): Settings {
     const service = SERVICE.exec(key)
     if (service) {
       const slug = service[1]!.toLowerCase()
-      const field = service[2]!.toLowerCase() as keyof ServiceOverride
+      const field = SERVICE_FIELDS[service[2]!]!
       services.set(slug, { ...services.get(slug), [field]: text(value) })
+      continue
+    }
+    // A misspelt setting would otherwise be ignored without a word.
+    if (key.startsWith("SERVICE_")) {
+      problems.push({
+        summary: "A variable starting with SERVICE_ is not a known setting",
+        detail: `${key}: expected SERVICE_<NAME>_ followed by ${Object.keys(SERVICE_FIELDS).join(", ")}`,
+      })
       continue
     }
 
@@ -229,7 +349,17 @@ export function readSettings(env: object): Settings {
     .filter((connector): connector is Connector => connector !== undefined)
     .sort((a, b) => a.path.localeCompare(b.path))
 
-  const existing = new Set(connectors.map((c) => c.path))
+  const merged = [...services]
+    .map(([service, override]) =>
+      resolveMerged(service, override, connectors, problems)
+    )
+    .filter((endpoint): endpoint is MergedConnector => endpoint !== undefined)
+    .sort((a, b) => a.path.localeCompare(b.path))
+
+  const existing = new Set([
+    ...connectors.map((c) => c.path),
+    ...merged.map((m) => m.path),
+  ])
   const clients: StaticClient[] = []
   for (const [name, token] of tokens) {
     if (token.length < MIN_CLIENT_TOKEN_LENGTH) {
@@ -272,6 +402,7 @@ export function readSettings(env: object): Settings {
 
   return {
     connectors,
+    merged,
     clients,
     ownerPassword,
     publicUrl,

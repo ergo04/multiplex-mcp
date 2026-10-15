@@ -56,6 +56,16 @@ describe("home page", () => {
     expect(html).toContain("CLIENT_TOKEN_SHORT")
   })
 
+  it("lists the merged URL next to the per-account ones", async () => {
+    const { call } = gatewayWith(echoAccount, { SERVICE_DEMO_MERGED: "true" })
+    const cookie = await signIn(call)
+    const html = await (
+      await call(`${ORIGIN}/`, { headers: { Cookie: cookie } })
+    ).text()
+    expect(html).toContain("Demo · all accounts")
+    expect(html).toContain(`${ORIGIN}/u/demo/mcp`)
+  })
+
   it("refuses a wrong password", async () => {
     const { call } = gatewayWith(echoAccount)
     const response = await call(`${ORIGIN}/`, {

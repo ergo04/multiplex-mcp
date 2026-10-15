@@ -17,6 +17,11 @@ Secrets_).
   server that takes an API key, add `SERVICE_<NAME>_URL` too.
 - `CLIENT_TOKEN_<CLIENT>` (secret, optional): a static token for Claude Code or
   any client that can send an `Authorization` header.
+- `SERVICE_<NAME>_MERGED` (variable, optional): `true` adds `/u/<service>/mcp`,
+  one connector for every account of the service, picked with an `account`
+  argument on each tool (`workspace` for Linear; rename it with
+  `SERVICE_<NAME>_ACCOUNT_PARAM`). `SERVICE_LINEAR_EXTRA_TOOLS=true` adds ten
+  Linear tools the gateway runs itself.
 
 Then open the Worker's URL and sign in: it lists the connector URLs to paste
 into claude.ai (_Settings → Connectors → Add custom connector_) or Claude Code.

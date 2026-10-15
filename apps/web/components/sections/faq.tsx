@@ -54,6 +54,12 @@ export function FaqSection() {
             Either way, fix the secret in the dashboard; the connector in
             claude.ai can stay as it is.
           </p>
+          <p>
+            On a merged connector a refused key comes back as the result of the
+            call, naming the account, and the other accounts keep working. An
+            account whose tool list can&apos;t be read drops out of the list
+            until it can.
+          </p>
         </Question>
 
         <Question question="Can I put the gateway on my own domain?">

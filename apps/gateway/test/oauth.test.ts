@@ -5,6 +5,7 @@ import {
   cookiesFrom,
   echoAccount,
   gatewayWith,
+  MERGED,
   ORIGIN,
   PASSWORD,
   rpc,
@@ -172,6 +173,36 @@ describe("authorization", () => {
     })
     expect(response.status).toBe(200)
     expect(seen[0]?.headers.get("Authorization")).toBe("Bearer key-alpha")
+  })
+
+  it("authorizes the merged connector, naming every account it opens", async () => {
+    const { call } = gatewayWith(
+      ({ body }) =>
+        Response.json({
+          jsonrpc: "2.0",
+          id: (JSON.parse(body) as { id: number }).id,
+          result: { tools: [] },
+        }),
+      { SERVICE_DEMO_MERGED: "true" }
+    )
+    const { tokens, html } = await signIn(call, MERGED)
+    expect(html).toContain("Connect Demo · all accounts")
+    expect(html).toContain(
+      "every account of demo: <strong>alpha</strong>, <strong>beta</strong>"
+    )
+
+    const opened = await call(MERGED, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${tokens.access_token}` },
+      body: rpc("tools/list"),
+    })
+    expect(opened.status).toBe(200)
+    const direct = await call(ALPHA, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${tokens.access_token}` },
+      body: rpc("ping"),
+    })
+    expect(direct.status).toBe(401)
   })
 
   it("binds the token to its connector", async () => {

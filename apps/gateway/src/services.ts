@@ -4,6 +4,8 @@ export interface ServiceDefinition {
   name: string
   upstream: string
   auth: UpstreamAuth
+  /** The service's own word for an account, used as the merged endpoint's argument. */
+  accountParam?: string
 }
 
 // Only hosted MCP servers verified to accept an API key as a bearer token.
@@ -13,6 +15,7 @@ export const KNOWN_SERVICES: Record<string, ServiceDefinition> = {
     name: "Linear",
     upstream: "https://mcp.linear.app/mcp",
     auth: { type: "bearer" },
+    accountParam: "workspace",
   },
   resend: {
     name: "Resend",

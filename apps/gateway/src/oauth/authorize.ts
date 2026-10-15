@@ -3,7 +3,7 @@ import {
   CimdFetchError,
   type OAuthHelpers,
 } from "@cloudflare/workers-oauth-provider"
-import type { Connector, Settings } from "../config"
+import type { Endpoint, Settings } from "../config"
 import { consentPage, messagePage } from "../pages"
 import { checkPassword, hasOwnerSession, ownerSessionCookie } from "./session"
 
@@ -43,7 +43,7 @@ export async function authorize(
   env: Env,
   oauth: OAuthHelpers,
   settings: Settings,
-  connectorFor: (resource: string | undefined) => Connector | undefined
+  connectorFor: (resource: string | undefined) => Endpoint | undefined
 ): Promise<Response> {
   if (request.method === "GET") {
     const clientId = new URL(request.url).searchParams.get("client_id") ?? ""

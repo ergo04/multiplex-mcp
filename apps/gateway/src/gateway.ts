@@ -3,7 +3,8 @@ import {
   OAuthError,
   OAuthResourceServer,
 } from "@cloudflare/workers-oauth-provider"
-import { readSettings, type Connector, type Settings } from "./config"
+import { endpoints, readSettings, type Endpoint, type Settings } from "./config"
+import { serveMerged } from "./merged/handler"
 import { authorize } from "./oauth/authorize"
 import {
   checkPassword,
@@ -35,6 +36,8 @@ interface Routes {
 
 export interface GatewayOptions {
   upstreamFetch?: UpstreamFetch
+  /** The Cache API cache holding merged tool lists; tests give each gateway its own. */
+  cacheName?: string
 }
 
 function allowedRedirect(uri: unknown): boolean {
@@ -48,21 +51,22 @@ function allowedRedirect(uri: unknown): boolean {
   }
 }
 
-function connectorAt(
+function endpointAt(
   settings: Settings,
   pathname: string
-): Connector | undefined {
+): Endpoint | undefined {
   const path = pathname.startsWith(RESOURCE_METADATA_PREFIX)
     ? pathname.slice(RESOURCE_METADATA_PREFIX.length)
     : pathname
-  return settings.connectors.find(
-    (c) => path === c.path || path.startsWith(`${c.path}/`)
+  return endpoints(settings).find(
+    (e) => path === e.path || path.startsWith(`${e.path}/`)
   )
 }
 
 export function createGateway(options: GatewayOptions = {}) {
   const upstreamFetch: UpstreamFetch =
     options.upstreamFetch ?? ((input, init) => fetch(input, init))
+  const cacheName = options.cacheName ?? "mupx:tools"
 
   // The library fixes its resource list at construction, so the server is
   // rebuilt whenever the origin or the set of connectors changes. A changed
@@ -70,9 +74,10 @@ export function createGateway(options: GatewayOptions = {}) {
   const cache = new Map<string, Routes>()
 
   function routesFor(settings: Settings, origin: string): Routes {
+    const all = endpoints(settings)
     const key = [
       origin,
-      settings.connectors.map((c) => c.path).join(","),
+      all.map((e) => e.path).join(","),
       settings.accessTokenDays,
       settings.refreshTokenDays,
       settings.dynamicRegistration,
@@ -82,7 +87,7 @@ export function createGateway(options: GatewayOptions = {}) {
 
     const server = new OAuthAuthorizationServer<Env>({
       issuer: origin,
-      resources: settings.connectors.map((c) => `${origin}${c.path}`),
+      resources: all.map((e) => `${origin}${e.path}`),
       authorizeEndpoint: AUTHORIZE_PATH,
       clientIdMetadataDocumentEnabled: true,
       clientRegistrationEndpoint: settings.dynamicRegistration
@@ -107,20 +112,20 @@ export function createGateway(options: GatewayOptions = {}) {
     })
 
     const resources = new Map<string, OAuthResourceServer<Env, Props>>()
-    for (const connector of settings.connectors) {
+    for (const endpoint of all) {
       resources.set(
-        connector.path,
+        endpoint.path,
         new OAuthResourceServer<Env, Props>({
           resourceMetadata: {
-            resource: `${origin}${connector.path}`,
+            resource: `${origin}${endpoint.path}`,
             authorization_servers: [origin],
             bearer_methods_supported: ["header"],
-            resource_name: connector.label,
+            resource_name: endpoint.label,
           },
           validateToken: (env) => async (resource, token) => {
             const client = await clientForToken(readSettings(env), token)
             if (client) {
-              if (!clientMayOpen(client, connector.path))
+              if (!clientMayOpen(client, endpoint.path))
                 throw new OAuthError("invalid_token", {
                   description: `Client "${client.name}" may not open this connector`,
                 })
@@ -133,8 +138,8 @@ export function createGateway(options: GatewayOptions = {}) {
             return server.validateToken<Props>(resource, token, env)
           },
           handler: {
-            fetch: (request, env) =>
-              serveConnector(request, env, connector.path),
+            fetch: (request, env, ctx) =>
+              serveEndpoint(request, env, ctx, endpoint.path),
           },
         })
       )
@@ -145,9 +150,10 @@ export function createGateway(options: GatewayOptions = {}) {
     return routes
   }
 
-  async function serveConnector(
+  async function serveEndpoint(
     request: Request,
     env: Env,
+    ctx: ExecutionContext,
     path: string
   ): Promise<Response> {
     // The resource server also routes path descendants here; they mean nothing
@@ -155,9 +161,15 @@ export function createGateway(options: GatewayOptions = {}) {
     if (new URL(request.url).pathname !== path)
       return gatewayError(404, "Not an MCP endpoint")
 
-    const connector = readSettings(env).connectors.find((c) => c.path === path)
-    if (!connector) return gatewayError(404, "This connector no longer exists")
-    return passthrough(request, connector, connector.credential, upstreamFetch)
+    const endpoint = endpoints(readSettings(env)).find((e) => e.path === path)
+    if (!endpoint) return gatewayError(404, "This connector no longer exists")
+    if (endpoint.kind === "account")
+      return passthrough(request, endpoint, upstreamFetch)
+    return serveMerged(request, endpoint, {
+      upstreamFetch,
+      cacheName,
+      waitUntil: (promise) => ctx.waitUntil(promise),
+    })
   }
 
   async function home(
@@ -228,11 +240,11 @@ export function createGateway(options: GatewayOptions = {}) {
           routes.server.getOAuthApi(env),
           settings,
           (resource) =>
-            settings.connectors.find((c) => `${origin}${c.path}` === resource)
+            endpoints(settings).find((e) => `${origin}${e.path}` === resource)
         )
 
-      const connector = connectorAt(settings, url.pathname)
-      const resource = connector && routes.resources.get(connector.path)
+      const endpoint = endpointAt(settings, url.pathname)
+      const resource = endpoint && routes.resources.get(endpoint.path)
       if (resource) return resource.fetch(request, env, ctx)
 
       return routes.server.fetch(request, env, ctx)

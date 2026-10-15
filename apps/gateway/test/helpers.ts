@@ -1,10 +1,15 @@
-import { createExecutionContext, env } from "cloudflare:test"
+import {
+  createExecutionContext,
+  env,
+  waitOnExecutionContext,
+} from "cloudflare:test"
 import { createGateway } from "../src/gateway"
 import type { UpstreamFetch } from "../src/proxy/passthrough"
 
 export const ORIGIN = "https://gw.example"
 export const ALPHA = `${ORIGIN}/m/demo/alpha/mcp`
 export const BETA = `${ORIGIN}/m/demo/beta/mcp`
+export const MERGED = `${ORIGIN}/u/demo/mcp`
 export const LAPTOP_TOKEN = "laptop-token-0123456789abcdef0123456789"
 export const NARROW_TOKEN = "narrow-token-0123456789abcdef0123456789"
 export const PASSWORD = "correct horse battery staple"
@@ -69,13 +74,22 @@ export function gatewayWith(
     else merged[key] = value
   }
 
-  const gateway = createGateway({ upstreamFetch })
-  const call = (input: string, init?: RequestInit) =>
-    gateway.fetch(
+  // Its own cache, so a tool list cached by one test never answers another.
+  const gateway = createGateway({
+    upstreamFetch,
+    cacheName: crypto.randomUUID(),
+  })
+  // Waits for waitUntil work too, so a cache write is done before the next call.
+  const call = async (input: string, init?: RequestInit) => {
+    const ctx = createExecutionContext()
+    const response = await gateway.fetch(
       new Request(input, init),
       merged as unknown as Env,
-      createExecutionContext()
+      ctx
     )
+    await waitOnExecutionContext(ctx)
+    return response
+  }
   return { call, seen }
 }
 

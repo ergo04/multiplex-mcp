@@ -1,6 +1,6 @@
 import type { ConsentDescription } from "@cloudflare/workers-oauth-provider"
 import { KNOWN_SERVICES } from "./services"
-import type { Connector, Settings } from "./config"
+import { endpoints, type Endpoint, type Settings } from "./config"
 
 export const DOCS_URL = "https://mupx.simoneergotino.it"
 
@@ -77,7 +77,7 @@ export function messagePage(
 
 export function consentPage(options: {
   details: ConsentDescription
-  connector: Connector
+  connector: Endpoint
   handle: string
   signedIn: boolean
   headers: Headers
@@ -98,9 +98,14 @@ export function consentPage(options: {
     : `<label for="password">Gateway password</label>
   <input id="password" name="password" type="password" autocomplete="current-password" required autofocus>`
 
+  const actsAs =
+    connector.kind === "account"
+      ? `account <strong>${escape(connector.account)}</strong> of ${escape(connector.service)}`
+      : `every account of ${escape(connector.service)}: ${connector.accounts.map((a) => `<strong>${escape(a.account)}</strong>`).join(", ")}`
+
   const body = `<h1>Connect ${escape(connector.label)}</h1>
 <p>${origin}</p>
-<p>It will act as account <strong>${escape(connector.account)}</strong> of ${escape(connector.service)}. Access goes to <strong>${escape(details.redirectHost)}</strong>.</p>
+<p>It will act as ${actsAs}. Access goes to <strong>${escape(details.redirectHost)}</strong>.</p>
 ${loopback}
 <form method="post">
   <input type="hidden" name="handle" value="${escape(handle)}">
@@ -125,7 +130,7 @@ const ADD_ACCOUNT = `<h2>Add an account</h2>
   .map((slug) => `<code>${slug}</code>`)
   .join(
     ", "
-  )}. Any other MCP server that takes an API key works with a <code>SERVICE_&lt;NAME&gt;_URL</code> variable. <a href="${DOCS_URL}">Docs</a>.</p>`
+  )}. Any other MCP server that takes an API key works with a <code>SERVICE_&lt;NAME&gt;_URL</code> variable. To reach every account of a service through one URL, set <code>SERVICE_&lt;NAME&gt;_MERGED</code> to <code>true</code>. <a href="${DOCS_URL}">Docs</a>.</p>`
 
 /** The public status page: counts and problem kinds, never a name. */
 export function homePage(
@@ -153,7 +158,7 @@ ${ADD_ACCOUNT}`
       200,
       "mupx",
       `<h1>mupx</h1>
-<p>Running, with ${plural(settings.connectors.length, "connector")}.</p>
+<p>Running, with ${plural(endpoints(settings).length, "connector")}.</p>
 ${problems}${notices}
 <form method="post" action="/">
   <label for="password">Sign in to see your connector URLs</label>
@@ -164,7 +169,7 @@ ${problems}${notices}
   }
 
   const connectors = settings.connectors.length
-    ? `<ul class="connectors">${settings.connectors
+    ? `<ul class="connectors">${endpoints(settings)
         .map(
           (c) =>
             `<li><strong>${escape(c.label)}</strong><br><code>${escape(origin + c.path)}</code></li>`

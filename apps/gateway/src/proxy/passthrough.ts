@@ -17,7 +17,7 @@ const REQUEST_HEADERS = new Set([
 
 // WWW-Authenticate above all: passed through, it would send the client off to
 // sign in with the upstream's own authorization server.
-const RESPONSE_HEADERS = new Set([
+export const RESPONSE_HEADERS = new Set([
   "content-type",
   "cache-control",
   "retry-after",
@@ -35,19 +35,63 @@ export function gatewayError(status: number, message: string): Response {
   )
 }
 
+export type Forwarded = { response: Response } | { failure: string }
+
+/**
+ * The one place an account's credential leaves the gateway, so the checks on
+ * what comes back hold for both kinds of endpoint.
+ */
+export async function forward(
+  connector: Connector,
+  target: URL,
+  init: { method: string; headers: Headers; body?: BodyInit },
+  upstreamFetch: UpstreamFetch
+): Promise<Forwarded> {
+  const headers = new Headers(init.headers)
+  if (connector.auth.type === "bearer")
+    headers.set("Authorization", `Bearer ${connector.credential}`)
+  else headers.set(connector.auth.name, connector.credential)
+
+  let upstream: Response
+  try {
+    upstream = await upstreamFetch(target, {
+      method: init.method,
+      headers,
+      body: init.body,
+      // A redirect would carry the account's credential to another host.
+      redirect: "manual",
+    })
+  } catch (error) {
+    console.error(`[forward] ${connector.path}: fetch failed`, error)
+    return { failure: `${connector.service} is unreachable` }
+  }
+
+  // A 401 passed on would make the client redo OAuth with the gateway, which
+  // can't fix a key the upstream refuses.
+  if (upstream.status === 401 || upstream.status === 403) {
+    await upstream.body?.cancel()
+    return {
+      failure: `${connector.service} rejected the credential of account "${connector.account}" (${upstream.status})`,
+    }
+  }
+  if (upstream.status >= 300 && upstream.status < 400) {
+    await upstream.body?.cancel()
+    return {
+      failure: `${connector.service} answered with a redirect, which is not followed`,
+    }
+  }
+  return { response: upstream }
+}
+
 export async function passthrough(
   request: Request,
   connector: Connector,
-  credential: string,
   upstreamFetch: UpstreamFetch
 ): Promise<Response> {
   const headers = new Headers()
   for (const [name, value] of request.headers) {
     if (forwards(name, REQUEST_HEADERS)) headers.set(name, value)
   }
-  if (connector.auth.type === "bearer")
-    headers.set("Authorization", `Bearer ${credential}`)
-  else headers.set(connector.auth.name, credential)
 
   const target = new URL(connector.upstream)
   for (const [key, value] of new URL(request.url).searchParams)
@@ -60,37 +104,15 @@ export async function passthrough(
       ? undefined
       : await request.arrayBuffer()
 
-  let upstream: Response
-  try {
-    upstream = await upstreamFetch(target, {
-      method: request.method,
-      headers,
-      body,
-      // A redirect would carry the account's credential to another host.
-      redirect: "manual",
-    })
-  } catch (error) {
-    console.error(`[passthrough] ${connector.path}: fetch failed`, error)
-    return gatewayError(502, `${connector.service} is unreachable`)
-  }
+  const forwarded = await forward(
+    connector,
+    target,
+    { method: request.method, headers, body },
+    upstreamFetch
+  )
+  if ("failure" in forwarded) return gatewayError(502, forwarded.failure)
 
-  // A 401 from here would make the client redo OAuth with the gateway, which
-  // can't fix a key the upstream refuses.
-  if (upstream.status === 401 || upstream.status === 403) {
-    await upstream.body?.cancel()
-    return gatewayError(
-      502,
-      `${connector.service} rejected the credential of account "${connector.account}" (${upstream.status})`
-    )
-  }
-  if (upstream.status >= 300 && upstream.status < 400) {
-    await upstream.body?.cancel()
-    return gatewayError(
-      502,
-      `${connector.service} answered with a redirect, which is not followed`
-    )
-  }
-
+  const upstream = forwarded.response
   const responseHeaders = new Headers()
   for (const [name, value] of upstream.headers) {
     if (forwards(name, RESPONSE_HEADERS)) responseHeaders.set(name, value)
