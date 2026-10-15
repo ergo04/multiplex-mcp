@@ -8,18 +8,25 @@ export function LimitsSection() {
       <ul className="flex list-disc flex-col gap-3 pl-5 marker:text-muted-foreground">
         <li>
           <Strong>Cloudflare&apos;s free plan</Strong> allows 100,000 requests a
-          day and 10 ms of CPU per request. Forwarding uses almost none of that
-          CPU: time spent waiting on the upstream doesn&apos;t count. KV allows
-          1,000 writes a day, and the gateway writes when it issues tokens.
+          day and 10 ms of CPU per request. Time spent waiting on the upstream
+          doesn&apos;t count. On my deployment a request takes 4 to 7 ms on an
+          isolate that is already running, but 10 to 15 ms when it is the first
+          one a fresh isolate serves, and signing in with OAuth up to 30 ms.
+          claude.ai calls from many data centers, so fresh isolates are common.
+          Cloudflare tolerates an isolate going over the limit now and then and
+          only stops one that does so consistently, with error 1102; so far none
+          has been stopped. KV allows 1,000 writes a day, and the gateway writes
+          when it issues tokens.
         </li>
         <li>
-          <Strong>The merged connector&apos;s tool list</Strong> is the one
-          request that costs real CPU: it asks every account, then merges the
-          lists. With three Linear workspaces, about 70 tools and 115 KB each,
-          that took a few milliseconds in my measurements, and under one once
-          cached. The list is cached for five minutes with the Cache API, which
-          only works on a custom domain: on <Code>workers.dev</Code> every list
-          asks every account again.
+          <Strong>The merged connector&apos;s tool list</Strong> costs the most
+          CPU: it asks every account, then merges the lists. With four Linear
+          workspaces, about 70 tools and 115 KB each, building it took 18 to 20
+          ms. The list is cached for five minutes with the Cache API, but that
+          cache belongs to one data center, and claude.ai rarely calls twice
+          from the same one, so most lists are built again. The Cache API only
+          works on a custom domain: on <Code>workers.dev</Code> every list asks
+          every account again.
         </li>
         <li>
           <Strong>The merged connector is for stateless servers</Strong>, like

@@ -66,8 +66,9 @@ connector for all its accounts:
 - The gateway answers `initialize` and `server/discover` itself, for clients of
   the 2025-06-18 and the 2026-07-28 revision, and adds a `list_accounts` tool
   (`list_workspaces` for Linear).
-- The tool list is cached for five minutes with the Cache API (custom domains
-  only). It's meant for stateless servers like Linear's and Resend's.
+- The tool list is cached for five minutes with the Cache API, per data center
+  and on custom domains only. It's meant for stateless servers like Linear's and
+  Resend's.
 
 With `SERVICE_LINEAR_EXTRA_TOOLS=true`, Linear's merged connector also gets ten
 tools the gateway runs against Linear's GraphQL API, for what its MCP can't do:
@@ -154,9 +155,12 @@ the dashboard and its code never changes.
 | [`brand`](brand)               | the mupx mark and icon, as SVG                                       |
 
 The gateway runs on the Workers free plan: 100,000 requests a day and 10 ms of
-CPU per request. Plain forwarding uses almost none; building a merged tool list
-from three Linear workspaces takes a few milliseconds, and under one once
-cached.
+CPU per request, which Cloudflare lets an isolate exceed now and then (it stops
+one that does so consistently, with error 1102). On my deployment a request
+takes 4 to 7 ms on a running isolate and 10 to 15 ms on a fresh one; building a
+merged tool list from four Linear workspaces takes 18 to 20 ms. claude.ai calls
+from many data centers, so fresh isolates are common and the per-data-center
+cache of the tool list rarely hits. So far no request has been stopped.
 
 ## Credits
 
