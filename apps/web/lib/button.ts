@@ -1,9 +1,9 @@
 const BASE =
-  "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full border text-sm font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/40 [&_svg]:size-4 [&_svg]:shrink-0"
+  "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border text-sm font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/40 [&_svg]:size-4 [&_svg]:shrink-0"
 
 const VARIANTS = {
   default:
-    "border-transparent bg-primary text-primary-foreground hover:bg-primary/85",
+    "border-transparent bg-primary text-primary-foreground hover:bg-primary/90",
   outline: "border-border bg-background hover:bg-muted",
   ghost: "border-transparent hover:bg-muted",
 }

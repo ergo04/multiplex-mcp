@@ -9,7 +9,7 @@
   },
   "routes": [
     {
-      "pattern": "multiaccount-mcp-gateway.simoneergotino.it",
+      "pattern": "mux.simoneergotino.it",
       "custom_domain": true,
     },
   ],

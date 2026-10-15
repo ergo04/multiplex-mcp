@@ -204,12 +204,11 @@ export function createGateway(options: GatewayOptions = {}) {
       const url = new URL(request.url)
       const origin = settings.publicUrl ?? url.origin
 
-      // Tokens are bound to the origin; on any other hostname nothing would
-      // validate, so say so instead of failing halfway through OAuth.
+      // Tokens are bound to the origin, so other hostnames serve nothing. The
+      // 404 doesn't name the right one: a pinned origin may be meant to stay
+      // unguessable.
       if (url.origin !== origin)
-        return new Response(`This gateway is served at ${origin}\n`, {
-          status: 404,
-        })
+        return new Response("Not found\n", { status: 404 })
 
       if (url.pathname === "/") return home(request, env, settings, origin)
 

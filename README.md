@@ -6,7 +6,7 @@ desktop, mobile) and from Claude Code.
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/ergo04/multiaccount-mcp-gateway/tree/main/apps/gateway)
 
-Documentation: **https://multiaccount-mcp-gateway.simoneergotino.it**
+Documentation: **https://mux.simoneergotino.it**
 
 ## The problem
 

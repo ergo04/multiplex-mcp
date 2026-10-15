@@ -1,4 +1,4 @@
-export const SITE_URL = "https://multiaccount-mcp-gateway.simoneergotino.it"
+export const SITE_URL = "https://mux.simoneergotino.it"
 export const REPO_URL = "https://github.com/ergo04/multiaccount-mcp-gateway"
 export const DEPLOY_URL =
   "https://deploy.workers.cloudflare.com/?url=https://github.com/ergo04/multiaccount-mcp-gateway/tree/main/apps/gateway"

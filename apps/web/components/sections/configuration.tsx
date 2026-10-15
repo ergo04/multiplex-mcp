@@ -82,7 +82,8 @@ const VARIABLES: Variable[] = [
     children: (
       <>
         Pins the gateway to one origin, such as your own domain. Requests on any
-        other hostname get a 404 that names the right one.
+        other hostname get a plain 404 that doesn&apos;t name the right one, so
+        a hard-to-guess hostname stays hard to guess.
       </>
     ),
   },
@@ -152,8 +153,8 @@ export function ConfigurationSection() {
               <span className="font-mono text-[0.8rem] font-medium wrap-anywhere text-foreground">
                 {variable.name}
               </span>
-              <span className="font-mono text-[0.7rem] tracking-wide text-muted-foreground uppercase">
-                {variable.kind}
+              <span className="text-xs text-muted-foreground">
+                {variable.kind === "secret" ? "Secret" : "Variable"}
                 {variable.required && " · required"}
               </span>
             </dt>

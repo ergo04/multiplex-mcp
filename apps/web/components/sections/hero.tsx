@@ -1,21 +1,11 @@
 import { buttonClass } from "@/lib/button"
 import { REPO_URL } from "@/lib/links"
+import { SECTIONS } from "@/lib/sections"
 import { Badge } from "@/components/ui/badge"
+import { SectionLabel } from "@/components/ui/section-label"
 import { Code } from "@/components/ui/code"
 import { DeployButton } from "@/components/ui/deploy-button"
 import { GitHubMark } from "@/components/ui/github-mark"
-
-const CONTENTS = [
-  { href: "#problem", label: "The problem" },
-  { href: "#how-it-works", label: "How it works" },
-  { href: "#setup", label: "Setup" },
-  { href: "#claude-code", label: "Claude Code" },
-  { href: "#services", label: "Services" },
-  { href: "#configuration", label: "Configuration" },
-  { href: "#security", label: "Security" },
-  { href: "#limits", label: "Limits" },
-  { href: "#faq", label: "FAQ" },
-]
 
 export function HeroSection() {
   return (
@@ -28,7 +18,7 @@ export function HeroSection() {
             <Badge>MIT</Badge>
           </div>
 
-          <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-5xl">
+          <h1 className="text-4xl leading-[1.05] tracking-[-0.04em] text-balance sm:text-6xl">
             Several accounts of the same MCP service,{" "}
             <span className="text-muted-foreground">
               in claude.ai and Claude Code.
@@ -61,14 +51,12 @@ export function HeroSection() {
           </div>
 
           <nav aria-label="On this page" className="pt-6">
-            <p className="font-mono text-xs font-medium tracking-widest text-muted-foreground uppercase">
-              On this page
-            </p>
+            <SectionLabel>On this page</SectionLabel>
             <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm">
-              {CONTENTS.map((item) => (
-                <li key={item.href}>
+              {SECTIONS.map((item) => (
+                <li key={item.id}>
                   <a
-                    href={item.href}
+                    href={`#${item.id}`}
                     className="text-muted-foreground underline decoration-border underline-offset-4 transition-colors hover:text-foreground hover:decoration-foreground"
                   >
                     {item.label}

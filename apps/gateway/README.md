@@ -3,7 +3,7 @@
 This is your copy of [multiaccount-mcp-gateway](https://github.com/ergo04/multiaccount-mcp-gateway):
 a Cloudflare Worker that gives each account of an MCP service its own connector
 URL, for claude.ai and Claude Code. Full documentation:
-https://multiaccount-mcp-gateway.simoneergotino.it
+https://mux.simoneergotino.it
 
 ## Configure it
 
@@ -22,7 +22,7 @@ Then open the Worker's URL and sign in: it lists the connector URLs to paste
 into claude.ai (_Settings → Connectors → Add custom connector_) or Claude Code.
 
 The full list of settings is in the
-[documentation](https://multiaccount-mcp-gateway.simoneergotino.it).
+[documentation](https://mux.simoneergotino.it).
 
 ## From the command line
 

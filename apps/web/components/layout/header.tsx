@@ -16,8 +16,8 @@ export function Header() {
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-sm">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
         <a href="/" className="flex min-w-0 items-center gap-2">
-          <Split className="size-4 shrink-0 rotate-90 text-primary" />
-          <span className="truncate font-mono text-sm font-medium">
+          <Split className="size-4 shrink-0 rotate-90 text-foreground" />
+          <span className="truncate font-display text-[0.95rem] font-semibold tracking-tight">
             multiaccount-mcp-gateway
           </span>
         </a>

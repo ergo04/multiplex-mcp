@@ -1,6 +1,7 @@
 import type { ReactNode } from "react"
 import { cn } from "@/lib/cn"
 import { SectionLabel } from "@/components/ui/section-label"
+import { sectionIndex } from "@/lib/sections"
 
 export function Section({
   id,
@@ -22,10 +23,10 @@ export function Section({
       className={cn("border-b border-border/60", muted && "bg-muted/30")}
     >
       <div className="mx-auto max-w-3xl px-5 py-16 sm:px-6 sm:py-20">
-        <SectionLabel>{label}</SectionLabel>
+        <SectionLabel index={sectionIndex(id)}>{label}</SectionLabel>
         <h2
           id={`${id}-title`}
-          className="mt-4 text-2xl font-semibold tracking-tight text-balance"
+          className="mt-4 text-2xl text-balance sm:text-3xl"
         >
           {title}
         </h2>

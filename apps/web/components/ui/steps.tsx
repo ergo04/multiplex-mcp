@@ -17,7 +17,7 @@ export function Step({
     <li className="grid grid-cols-[1.75rem_minmax(0,1fr)] gap-x-4">
       <span
         aria-hidden
-        className="flex size-7 items-center justify-center rounded-full border border-border bg-muted font-mono text-xs text-foreground"
+        className="flex size-7 items-center justify-center rounded-[6px] border border-border bg-card text-xs font-medium text-foreground tabular-nums"
       >
         {number}
       </span>

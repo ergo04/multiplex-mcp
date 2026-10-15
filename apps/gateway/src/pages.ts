@@ -2,7 +2,7 @@ import type { ConsentDescription } from "@cloudflare/workers-oauth-provider"
 import { KNOWN_SERVICES } from "./services"
 import type { Connector, Settings } from "./config"
 
-export const DOCS_URL = "https://multiaccount-mcp-gateway.simoneergotino.it"
+export const DOCS_URL = "https://mux.simoneergotino.it"
 
 const escape = (value: string) =>
   value.replace(/[&<>"']/g, (char) => `&#${char.charCodeAt(0)};`)
