@@ -29,7 +29,8 @@ const STYLE = `
 
 const HEADERS = {
   "Content-Type": "text/html; charset=utf-8",
-  "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; img-src data:",
+  "Content-Security-Policy":
+    "default-src 'none'; style-src 'unsafe-inline'; img-src data:",
   "Cache-Control": "no-store",
   "X-Robots-Tag": "noindex",
   "X-Frame-Options": "DENY",
