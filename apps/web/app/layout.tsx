@@ -23,13 +23,13 @@ const DESCRIPTION =
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "multiaccount-mcp-gateway",
+  title: "mupx",
   description: DESCRIPTION,
   authors: [{ name: "Simone Ergotino", url: "https://simoneergotino.it" }],
   openGraph: {
     type: "website",
     url: "/",
-    title: "multiaccount-mcp-gateway",
+    title: "mupx",
     description: DESCRIPTION,
   },
 }

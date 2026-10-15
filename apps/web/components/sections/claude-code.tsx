@@ -9,7 +9,7 @@ const MCP_JSON = `{
       "type": "http",
       "url": "https://<your-gateway>/m/resend/work/mcp",
       "headers": {
-        "Authorization": "Bearer \${MCP_GATEWAY_TOKEN}"
+        "Authorization": "Bearer \${MUPX_TOKEN}"
       }
     }
   }
@@ -37,7 +37,7 @@ export function ClaudeCodeSection() {
       <CodeBlock label=".mcp.json">{MCP_JSON}</CodeBlock>
 
       <p>
-        Claude Code expands <Code>{"${MCP_GATEWAY_TOKEN}"}</Code> from your
+        Claude Code expands <Code>{"${MUPX_TOKEN}"}</Code> from your
         environment, cloud sessions included, so the token stays out of the
         file. Or add the server from the terminal:
       </p>

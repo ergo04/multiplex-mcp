@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/wrangler/config-schema.json",
-  "name": "multiaccount-mcp-gateway-docs",
+  "name": "mupx-docs",
   "compatibility_date": "2026-10-01",
   // No `main`: the Worker only serves the static export `pnpm build` writes.
   "assets": {
@@ -9,7 +9,7 @@
   },
   "routes": [
     {
-      "pattern": "mux.simoneergotino.it",
+      "pattern": "mupx.simoneergotino.it",
       "custom_domain": true,
     },
   ],

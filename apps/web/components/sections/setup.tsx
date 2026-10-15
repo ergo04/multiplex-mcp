@@ -66,12 +66,10 @@ export function SetupSection() {
         <Step number={3} title="Copy the connector URLs">
           <p>
             Open the Worker&apos;s URL, for example{" "}
-            <Code>
-              https://multiaccount-mcp-gateway.&lt;your-subdomain&gt;.workers.dev
-            </Code>
-            , and sign in with the password. The page lists one connector URL
-            per account, plus any configuration problem it found and which
-            variable causes it.
+            <Code>https://mupx.&lt;your-subdomain&gt;.workers.dev</Code>, and
+            sign in with the password. The page lists one connector URL per
+            account, plus any configuration problem it found and which variable
+            causes it.
           </p>
           <p>
             Signed out, the same page shows only how many connectors and

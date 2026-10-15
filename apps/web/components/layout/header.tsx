@@ -18,7 +18,7 @@ export function Header() {
         <a href="/" className="flex min-w-0 items-center gap-2">
           <Split className="size-4 shrink-0 rotate-90 text-foreground" />
           <span className="truncate font-display text-[0.95rem] font-semibold tracking-tight">
-            multiaccount-mcp-gateway
+            mupx
           </span>
         </a>
         <nav aria-label="Main" className="flex shrink-0 items-center gap-1">

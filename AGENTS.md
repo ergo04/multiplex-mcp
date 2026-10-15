@@ -1,4 +1,4 @@
-# multiaccount-mcp-gateway — agent guide
+# mupx — agent guide
 
 An open-source Cloudflare Worker that gives each account of an MCP service its
 own connector URL, with OAuth for claude.ai and static bearer tokens for Claude

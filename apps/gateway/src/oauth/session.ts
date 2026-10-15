@@ -1,6 +1,6 @@
 import { sameSecret } from "../secrets"
 
-const COOKIE = "__Host-mgw-owner"
+const COOKIE = "__Host-mupx-owner"
 const MAX_AGE_SECONDS = 30 * 24 * 60 * 60
 
 const encoder = new TextEncoder()
@@ -10,7 +10,7 @@ const encoder = new TextEncoder()
 async function sign(password: string, data: string): Promise<string> {
   const key = await crypto.subtle.importKey(
     "raw",
-    encoder.encode(`mgw-session:${password}`),
+    encoder.encode(`mupx-session:${password}`),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign"]

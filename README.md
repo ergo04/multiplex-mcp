@@ -1,12 +1,12 @@
-# multiaccount-mcp-gateway
+# mupx
 
-**One MCP connector per account.** Use two Resend accounts, three Linear
+**Multiplex MCP: one connector per account.** Use two Resend accounts, three Linear
 workspaces, or any other MCP service several times over, from claude.ai (web,
 desktop, mobile) and from Claude Code.
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/ergo04/multiaccount-mcp-gateway/tree/main/apps/gateway)
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/ergo04/multiplex-mcp/tree/main/apps/gateway)
 
-Documentation: **https://mux.simoneergotino.it**
+Documentation: **https://mupx.simoneergotino.it**
 
 ## The problem
 

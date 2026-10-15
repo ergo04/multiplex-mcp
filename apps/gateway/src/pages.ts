@@ -2,7 +2,7 @@ import type { ConsentDescription } from "@cloudflare/workers-oauth-provider"
 import { KNOWN_SERVICES } from "./services"
 import type { Connector, Settings } from "./config"
 
-export const DOCS_URL = "https://mux.simoneergotino.it"
+export const DOCS_URL = "https://mupx.simoneergotino.it"
 
 const escape = (value: string) =>
   value.replace(/[&<>"']/g, (char) => `&#${char.charCodeAt(0)};`)
@@ -40,7 +40,7 @@ function layout(title: string, body: string): string {
 <style>${STYLE}</style>
 <body>
 ${body}
-<p class="muted"><a href="${DOCS_URL}">multiaccount-mcp-gateway</a></p>
+<p class="muted"><a href="${DOCS_URL}">mupx</a></p>
 </body>
 </html>`
 }
@@ -144,8 +144,8 @@ ${ADD_ACCOUNT}`
       : ""
     return page(
       200,
-      "multiaccount-mcp-gateway",
-      `<h1>multiaccount-mcp-gateway</h1>
+      "mupx",
+      `<h1>mupx</h1>
 <p>Running, with ${plural(settings.connectors.length, "connector")}.</p>
 ${problems}${notices}
 <form method="post" action="/">

@@ -3,7 +3,7 @@ import { buttonClass } from "@/lib/button"
 import { SectionLabel } from "@/components/ui/section-label"
 
 export const metadata: Metadata = {
-  title: "Not found · multiaccount-mcp-gateway",
+  title: "Not found · mupx",
 }
 
 export default function NotFound() {

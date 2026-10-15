@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "multiaccount-mcp-gateway",
+  "name": "mupx",
   "main": "src/index.ts",
   "compatibility_date": "2026-10-01",
   // Without it the OAuth library refuses to advertise CIMD: client metadata

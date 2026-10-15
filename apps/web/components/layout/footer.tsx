@@ -32,7 +32,7 @@ export function Footer() {
         </a>
 
         <div className="flex flex-col items-start justify-between gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center">
-          <span>multiaccount-mcp-gateway · MIT</span>
+          <span>mupx · MIT</span>
           <div className="flex flex-wrap gap-x-5 gap-y-2">
             {LINKS.map((link) => (
               <a
