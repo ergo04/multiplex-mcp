@@ -58,6 +58,12 @@ export function ClaudeCodeSection() {
       />
 
       <p>
+        Any other MCP client that can send a header (Cursor, VS Code or Gemini
+        CLI, for example) uses a client token the same way: point it at the
+        connector URL and send <Code>Authorization: Bearer &lt;token&gt;</Code>.
+      </p>
+
+      <p>
         Without a header, Claude Code can still connect through OAuth: its
         client metadata document is on the default allowlist, so it opens the
         same consent page in your browser.

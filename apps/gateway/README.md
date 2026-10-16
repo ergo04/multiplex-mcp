@@ -2,8 +2,8 @@
 
 This is your copy of [mupx](https://github.com/ergo04/multiplex-mcp):
 a Cloudflare Worker that gives each account of an MCP service its own connector
-URL, for claude.ai and Claude Code. Full documentation:
-https://mupx.simoneergotino.it
+URL, for claude.ai, Claude Code, ChatGPT, Codex or any MCP client that can send
+a header. Full documentation: https://mupx.simoneergotino.it
 
 ## Configure it
 
@@ -17,6 +17,11 @@ Secrets_).
   server that takes an API key, add `SERVICE_<NAME>_URL` too.
 - `CLIENT_TOKEN_<CLIENT>` (secret, optional): a static token for Claude Code or
   any client that can send an `Authorization` header.
+- `ALLOWED_CLIENTS` (variable, optional): the Client ID Metadata Document URLs
+  that may connect through OAuth, comma-separated. The default is claude.ai's
+  and Claude Code's; setting it replaces the default, so to add ChatGPT and
+  Codex set it to
+  `https://claude.ai/oauth/mcp-oauth-client-metadata,https://claude.ai/oauth/claude-code-client-metadata,https://chatgpt.com/oauth/client.json,https://chatgpt.com/oauth/codex/client.json`.
 - `SERVICE_<NAME>_MERGED` (variable, optional): `true` adds `/u/<service>/mcp`,
   one connector for every account of the service, picked with an `account`
   argument on each tool (`workspace` for Linear; rename it with
@@ -24,7 +29,9 @@ Secrets_).
   Linear tools the gateway runs itself.
 
 Then open the Worker's URL and sign in: it lists the connector URLs to paste
-into claude.ai (_Settings → Connectors → Add custom connector_) or Claude Code.
+into claude.ai (_Settings → Connectors → Add custom connector_), ChatGPT (as a
+custom connector, which needs developer mode), Codex, Claude Code or another
+MCP client.
 
 The full list of settings is in the
 [documentation](https://mupx.simoneergotino.it).

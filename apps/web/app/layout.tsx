@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 })
 
 const DESCRIPTION =
-  "A Cloudflare Worker that gives every account of an MCP service its own connector URL, so claude.ai and Claude Code can use two Resend accounts or three Linear workspaces."
+  "A Cloudflare Worker that gives every account of an MCP service its own connector URL, so claude.ai, ChatGPT, Claude Code or any other MCP client can use two Resend accounts or three Linear workspaces."
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

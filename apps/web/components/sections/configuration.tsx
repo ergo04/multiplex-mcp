@@ -153,7 +153,7 @@ const VARIABLES: Variable[] = [
     children: (
       <>
         Comma-separated Client ID Metadata Document URLs that may start an
-        authorization.
+        authorization. Setting it replaces the default.
       </>
     ),
   },
@@ -209,13 +209,19 @@ export function ConfigurationSection() {
       </dl>
 
       <p>
-        The default <Code>ALLOWED_CLIENTS</Code> are claude.ai&apos;s and Claude
-        Code&apos;s metadata documents:
+        By default the gateway allows claude.ai&apos;s and Claude Code&apos;s
+        metadata documents. Setting <Code>ALLOWED_CLIENTS</Code> replaces that
+        list, so name those two again. With ChatGPT and Codex added:
       </p>
 
       <CodeBlock label="ALLOWED_CLIENTS">
-        {`https://claude.ai/oauth/mcp-oauth-client-metadata,https://claude.ai/oauth/claude-code-client-metadata`}
+        {`https://claude.ai/oauth/mcp-oauth-client-metadata,https://claude.ai/oauth/claude-code-client-metadata,https://chatgpt.com/oauth/client.json,https://chatgpt.com/oauth/codex/client.json`}
       </CodeBlock>
+
+      <p>
+        ChatGPT signs in with that one stable document because the gateway
+        returns the issuer with the authorization code (RFC 9207).
+      </p>
 
       <p>
         OAuth tokens are bound to the origin they were issued on. If you move

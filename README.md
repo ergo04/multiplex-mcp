@@ -7,7 +7,8 @@
 
 **Multiplex MCP: one connector per account.** Use two Resend accounts, three Linear
 workspaces, or any other MCP service several times over, from claude.ai (web,
-desktop, mobile) and from Claude Code.
+desktop, mobile), Claude Code, ChatGPT, Codex or any MCP client that can send a
+header.
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/ergo04/multiplex-mcp/tree/main/apps/gateway)
 
@@ -32,20 +33,22 @@ account its own URL and swaps your token for that account's API key on the way
 upstream:
 
 ```
-claude.ai ───── OAuth, approved with your password ──┐
-Claude Code ─── Authorization: Bearer <client token> ┤
-                                                     ▼
+claude.ai, ChatGPT, Codex ─ OAuth, approved with your password ──┐
+Claude Code, Cursor, … ──── Authorization: Bearer <client token> ┤
+                                                                 ▼
                      https://<your-gateway>/m/<service>/<account>/mcp
-                                                     │ your token out,
-                                                     │ the account's key in
-                                                     ▼
+                                                                 │ your token out,
+                                                                 │ the account's key in
+                                                                 ▼
                         https://mcp.resend.com/mcp, https://mcp.linear.app/mcp, …
 ```
 
-- **claude.ai** finds the gateway's own OAuth server, signs in with its Client
-  ID Metadata Document, and you approve on a consent page with your password.
-  The token it gets opens that one connector and nothing else.
-- **Claude Code** can send a header, so it uses a static token instead.
+- **claude.ai**, and ChatGPT or Codex once you allow them, find the gateway's
+  own OAuth server and sign in with their Client ID Metadata Document; you
+  approve on a consent page with your password. The token a client gets opens
+  that one connector and nothing else.
+- **Claude Code**, or any MCP client that can send a header, can use a static
+  token instead.
 - Requests are forwarded as they are and responses stream back (SSE included).
   The upstream's auth challenge and cookies never reach the client.
 
@@ -98,6 +101,13 @@ initiatives.
      claude mcp add --transport http resend-work https://<your-gateway>/m/resend/work/mcp --header "Authorization: Bearer <token>"
      ```
 
+   - ChatGPT and Codex: add their metadata documents to `ALLOWED_CLIENTS`
+     (see [Configuration](#configuration)), then add the URL as a connector and
+     approve it the same way. In ChatGPT a custom connector needs developer
+     mode.
+   - Any other MCP client that can send a header (Cursor, VS Code, Gemini CLI,
+     …): use a client token as with Claude Code.
+
 ## Services
 
 | Service                      | Built in | Credential                                                   |
@@ -129,17 +139,29 @@ the dashboard and its code never changes.
 | `PUBLIC_URL`                   | var    | pin one origin (otherwise each hostname serves itself)         |
 | `ACCESS_TOKEN_DAYS`            | var    | default 30                                                     |
 | `REFRESH_TOKEN_DAYS`           | var    | default 180, sliding while in use                              |
-| `ALLOWED_CLIENTS`              | var    | Client ID Metadata Document URLs allowed to authorize          |
+| `ALLOWED_CLIENTS`              | var    | Client ID Metadata Document URLs; replaces the default         |
 | `DYNAMIC_REGISTRATION`         | var    | `true` to open RFC 7591 registration (off by default)          |
+
+By default the gateway allows claude.ai's and Claude Code's metadata documents.
+Setting `ALLOWED_CLIENTS` replaces that list, so name those two again. With
+ChatGPT and Codex added:
+
+```
+https://claude.ai/oauth/mcp-oauth-client-metadata,https://claude.ai/oauth/claude-code-client-metadata,https://chatgpt.com/oauth/client.json,https://chatgpt.com/oauth/codex/client.json
+```
+
+ChatGPT signs in with that one stable document because the gateway returns the
+issuer with the authorization code (RFC 9207).
 
 ## Security
 
 - One owner. The consent page asks for `OWNER_PASSWORD`, rate limited per IP.
 - Tokens are bound to one connector (RFC 8707): a Resend token can't open
   Linear.
-- Only claude.ai's and Claude Code's metadata documents may start an
-  authorization, checked before anything is fetched. Dynamic registration is
-  off, so nobody can register a client.
+- By default only claude.ai's and Claude Code's metadata documents may start
+  an authorization; add others with `ALLOWED_CLIENTS`. The check runs before
+  anything is fetched. Dynamic registration is off, so nobody can register a
+  client.
 - Access tokens last 30 days, because claude.ai may never refresh a custom
   connector's token
   ([anthropics/claude-ai-mcp#228](https://github.com/anthropics/claude-ai-mcp/issues/228)).
