@@ -37,9 +37,9 @@ export function HowItWorksSection() {
 
       <ol className="flex list-decimal flex-col gap-3 pl-5 marker:text-muted-foreground">
         <li>
-          claude.ai or Claude Code calls the account&apos;s URL with a token:
-          one the gateway issued through OAuth, or a static client token you
-          set.
+          Your client calls the account&apos;s URL with a token: one the gateway
+          issued through OAuth (claude.ai, ChatGPT), or a static client token
+          you set (Claude Code, or any client that can send a header).
         </li>
         <li>
           The gateway checks the token belongs to this connector. A token issued

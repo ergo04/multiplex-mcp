@@ -163,6 +163,7 @@ describe("authorization", () => {
     const { tokens, html } = await signIn(call)
 
     expect(html).toContain("Connect Demo · alpha")
+    expect(html).toContain("account <strong>alpha</strong> of Demo")
     expect(html).toContain("claude.ai")
     expect(tokens.expires_in).toBe(30 * 24 * 60 * 60)
 
@@ -188,7 +189,7 @@ describe("authorization", () => {
     const { tokens, html } = await signIn(call, MERGED)
     expect(html).toContain("Connect Demo · all accounts")
     expect(html).toContain(
-      "every account of demo: <strong>alpha</strong>, <strong>beta</strong>"
+      "every account of Demo: <strong>alpha</strong>, <strong>beta</strong>"
     )
 
     const opened = await call(MERGED, {

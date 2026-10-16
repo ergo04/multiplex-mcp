@@ -100,8 +100,8 @@ export function consentPage(options: {
 
   const actsAs =
     connector.kind === "account"
-      ? `account <strong>${escape(connector.account)}</strong> of ${escape(connector.service)}`
-      : `every account of ${escape(connector.service)}: ${connector.accounts.map((a) => `<strong>${escape(a.account)}</strong>`).join(", ")}`
+      ? `account <strong>${escape(connector.account)}</strong> of ${escape(connector.serviceName)}`
+      : `every account of ${escape(connector.serviceName)}: ${connector.accounts.map((a) => `<strong>${escape(a.account)}</strong>`).join(", ")}`
 
   const body = `<h1>Connect ${escape(connector.label)}</h1>
 <p>${origin}</p>
@@ -200,7 +200,7 @@ ${problems}${notices}
     "Your connectors",
     `<h1>Your connectors</h1>
 ${notices}
-<p>Add each URL as a custom connector in claude.ai (Settings → Connectors), or as an <code>http</code> server in Claude Code.</p>
+<p>Add each URL as a custom connector in claude.ai (Settings → Connectors) or ChatGPT, or as an <code>http</code> server in Claude Code or any MCP client that can send a header.</p>
 ${connectors}${problems}${clients}${ADD_ACCOUNT}`
   )
 }

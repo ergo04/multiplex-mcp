@@ -1,6 +1,6 @@
 import { Code } from "@/components/ui/code"
 import { DeployButton } from "@/components/ui/deploy-button"
-import { Section, Strong } from "@/components/ui/section"
+import { Section, Strong, TextLink } from "@/components/ui/section"
 import { Step, Steps } from "@/components/ui/steps"
 import { VarList } from "@/components/ui/var-list"
 
@@ -89,6 +89,20 @@ export function SetupSection() {
             A cookie remembers that browser for 30 days, so the next accounts
             take one click each. Repeat for every URL. The connectors then work
             in claude.ai on the web, on desktop and on mobile.
+          </p>
+        </Step>
+
+        <Step number={5} title="Or add them to another client">
+          <p>
+            ChatGPT and Codex sign in the same way once their metadata documents
+            are in <Code>ALLOWED_CLIENTS</Code> (see{" "}
+            <TextLink href="#configuration">Configuration</TextLink>). In
+            ChatGPT a custom connector needs developer mode.
+          </p>
+          <p>
+            Claude Code, and any other MCP client that can send an{" "}
+            <Code>Authorization</Code> header, can skip OAuth with a static
+            token: see <TextLink href="#claude-code">Claude Code</TextLink>.
           </p>
         </Step>
       </Steps>

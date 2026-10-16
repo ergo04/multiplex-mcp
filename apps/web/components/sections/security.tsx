@@ -46,9 +46,10 @@ export function SecuritySection() {
           account.
         </Point>
         <Point title="Only allowlisted clients">
-          By default only claude.ai and Claude Code may start an authorization.
-          The check runs before the gateway fetches any client metadata, so
-          nobody can make it fetch a URL of their choice.
+          By default only claude.ai and Claude Code may start an authorization;
+          add others, like ChatGPT, with <Code>ALLOWED_CLIENTS</Code>. The check
+          runs before the gateway fetches any client metadata, so nobody can
+          make it fetch a URL of their choice.
         </Point>
         <Point title="No open registration">
           Dynamic client registration is off by default, so nobody can register

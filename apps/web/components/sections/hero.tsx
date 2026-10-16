@@ -16,14 +16,14 @@ export function HeroSection() {
         <div className="flex max-w-3xl flex-col gap-6">
           <div className="flex flex-wrap gap-2">
             <Badge>Cloudflare Worker</Badge>
-            <Badge>claude.ai + Claude Code</Badge>
+            <Badge>claude.ai · ChatGPT · Claude Code</Badge>
             <Badge>MIT</Badge>
           </div>
 
           <h1 className="text-4xl leading-[1.05] tracking-[-0.04em] text-balance sm:text-6xl">
             Several accounts of the same MCP service,{" "}
             <span className="text-muted-foreground">
-              in claude.ai and Claude Code.
+              in claude.ai, ChatGPT and Claude Code.
             </span>
           </h1>
 

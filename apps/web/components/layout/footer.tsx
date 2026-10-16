@@ -47,8 +47,9 @@ export function Footer() {
               </span>
             </a>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              Multiplex MCP: one connector per account, for claude.ai and Claude
-              Code. A Cloudflare Worker you run in your own account.
+              Multiplex MCP: one connector per account, for claude.ai, ChatGPT,
+              Claude Code and other MCP clients. A Cloudflare Worker you run in
+              your own account.
             </p>
           </div>
 
