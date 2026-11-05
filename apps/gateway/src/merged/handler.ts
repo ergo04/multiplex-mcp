@@ -20,6 +20,7 @@ import {
   META_PROTOCOL_VERSION,
   META_SERVER_INFO,
   METHOD_NOT_FOUND,
+  MODERN_VERSION,
   rpcError,
   rpcResult,
   SERVER_INFO,
@@ -29,7 +30,7 @@ import {
   type JsonRpcRequest,
   type RequestId,
 } from "./protocol"
-import { upstreamHeaders } from "./upstream"
+import { modernBody, upstreamHeaders } from "./upstream"
 
 export interface MergedOptions {
   upstreamFetch: UpstreamFetch
@@ -227,14 +228,18 @@ async function callTool(
   if ("failure" in forwarded) return toolResult(id, forwarded.failure, true)
 
   // Same id, so the upstream's reply is already the answer to this request and
-  // streams through as it is. Only its session id stays behind: a session
-  // would tie the merged endpoint to one account.
+  // a legacy client gets it as it is. Only its session id stays behind: a
+  // session would tie the merged endpoint to one account.
   const upstream = forwarded.response
   const responseHeaders = new Headers()
   for (const [header, value] of upstream.headers)
     if (RESPONSE_HEADERS.has(header.toLowerCase()))
       responseHeaders.set(header, value)
-  return new Response(upstream.body, {
+  const body =
+    declaredVersion(params) === MODERN_VERSION
+      ? await modernBody(upstream)
+      : upstream.body
+  return new Response(body, {
     status: upstream.status,
     statusText: upstream.statusText,
     headers: responseHeaders,
