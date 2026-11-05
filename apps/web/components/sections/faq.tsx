@@ -76,10 +76,10 @@ export function FaqSection() {
           <p>
             Yes. Any MCP client that can send an <Code>Authorization</Code>{" "}
             header (Cursor, VS Code or Gemini CLI, for example) can use a static
-            client token. ChatGPT and Codex connect through OAuth once their
-            metadata documents are in <Code>ALLOWED_CLIENTS</Code>. Any other
-            OAuth client needs its Client ID Metadata Document listed there too,
-            or you turn on <Code>DYNAMIC_REGISTRATION</Code>.
+            client token. ChatGPT, Codex and Raycast connect through OAuth once
+            their metadata documents are in <Code>ALLOWED_CLIENTS</Code>. Any
+            other OAuth client needs its Client ID Metadata Document listed
+            there too, or you turn on <Code>DYNAMIC_REGISTRATION</Code>.
           </p>
         </Question>
 

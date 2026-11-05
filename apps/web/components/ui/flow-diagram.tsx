@@ -79,8 +79,10 @@ export function FlowDiagram() {
       <div className="grid grid-cols-1 gap-2 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1.3fr)_auto_minmax(0,1fr)] md:items-center md:gap-3">
         <Box title="Your client">
           <span>
-            <span className="text-foreground">claude.ai, ChatGPT, Codex</span>:
-            OAuth token from the gateway
+            <span className="text-foreground">
+              claude.ai, ChatGPT, Codex, Raycast
+            </span>
+            : OAuth token from the gateway
           </span>
           <span>
             <span className="text-foreground">Claude Code, Cursor, …</span>:

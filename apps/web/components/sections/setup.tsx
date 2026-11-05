@@ -94,10 +94,11 @@ export function SetupSection() {
 
         <Step number={5} title="Or add them to another client">
           <p>
-            ChatGPT and Codex sign in the same way once their metadata documents
-            are in <Code>ALLOWED_CLIENTS</Code> (see{" "}
+            ChatGPT, Codex and Raycast sign in the same way once their metadata
+            documents are in <Code>ALLOWED_CLIENTS</Code> (see{" "}
             <TextLink href="#configuration">Configuration</TextLink>). In
-            ChatGPT a custom connector needs developer mode.
+            ChatGPT a custom connector needs developer mode; in Raycast use
+            Install MCP Server with the HTTP transport.
           </p>
           <p>
             Claude Code, and any other MCP client that can send an{" "}

@@ -211,11 +211,11 @@ export function ConfigurationSection() {
       <p>
         By default the gateway allows claude.ai&apos;s and Claude Code&apos;s
         metadata documents. Setting <Code>ALLOWED_CLIENTS</Code> replaces that
-        list, so name those two again. With ChatGPT and Codex added:
+        list, so name those two again. With ChatGPT, Codex and Raycast added:
       </p>
 
       <CodeBlock label="ALLOWED_CLIENTS">
-        {`https://claude.ai/oauth/mcp-oauth-client-metadata,https://claude.ai/oauth/claude-code-client-metadata,https://chatgpt.com/oauth/client.json,https://chatgpt.com/oauth/codex/client.json`}
+        {`https://claude.ai/oauth/mcp-oauth-client-metadata,https://claude.ai/oauth/claude-code-client-metadata,https://chatgpt.com/oauth/client.json,https://chatgpt.com/oauth/codex/client.json,https://www.raycast.com/.well-known/oauth-client-metadata/raycast.json`}
       </CodeBlock>
 
       <p>
