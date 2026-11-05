@@ -71,6 +71,9 @@ const demoUpstream: UpstreamHandler = ({ headers, body }) => {
   })
 }
 
+const SSE_HEADERS = { "Content-Type": "text/event-stream" }
+const SERVER_INFO_KEY = "io.modelcontextprotocol/serverInfo"
+
 function post(body: object, headers: Record<string, string> = {}) {
   return {
     method: "POST",
@@ -78,6 +81,39 @@ function post(body: object, headers: Record<string, string> = {}) {
     body: JSON.stringify({ jsonrpc: "2.0", ...body }),
   }
 }
+
+function modernCall(id: number) {
+  return post(
+    {
+      id,
+      method: "tools/call",
+      params: {
+        name: "shared_tool",
+        arguments: { account: "alpha" },
+        _meta: {
+          "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+          "io.modelcontextprotocol/clientCapabilities": {},
+        },
+      },
+    },
+    { "MCP-Protocol-Version": "2026-07-28" }
+  )
+}
+
+interface CallReply {
+  id: number
+  result: {
+    resultType?: string
+    content: unknown[]
+    _meta?: Record<string, unknown>
+  }
+}
+
+const dataLines = (text: string) =>
+  text
+    .split("\n")
+    .filter((line) => line.startsWith("data: "))
+    .map((line) => JSON.parse(line.slice(6)) as CallReply)
 
 async function listTools(call: ReturnType<typeof gatewayWith>["call"]) {
   const response = await call(MERGED, post({ id: 7, method: "tools/list" }))
@@ -330,6 +366,159 @@ describe("merged endpoint: tools/call", () => {
     expect(new TextDecoder().decode(first.value)).toContain("first")
     release()
     await reader.cancel()
+  })
+
+  it("gives a 2026-07-28 client what its revision requires, in JSON and in SSE", async () => {
+    const reply = {
+      jsonrpc: "2.0",
+      id: 4,
+      result: { content: [{ type: "text", text: "perché" }] },
+    }
+    const progress = { jsonrpc: "2.0", method: "notifications/progress" }
+
+    const json = gatewayWith(() => Response.json(reply), MERGED_ON)
+    const fromJson = (await (
+      await json.call(MERGED, modernCall(4))
+    ).json()) as CallReply
+
+    const stream = gatewayWith(
+      () =>
+        new Response(
+          `data: ${JSON.stringify(progress)}\n\nevent: message\ndata: ${JSON.stringify(reply)}\n\n`,
+          { headers: SSE_HEADERS }
+        ),
+      MERGED_ON
+    )
+    const text = await (await stream.call(MERGED, modernCall(4))).text()
+    const [first, fromStream] = dataLines(text)
+
+    expect(first).toEqual(progress)
+    expect(text).toContain("event: message\ndata: ")
+    for (const message of [fromJson, fromStream!]) {
+      expect(message.id).toBe(4)
+      expect(message.result.resultType).toBe("complete")
+      expect(message.result.content).toEqual(reply.result.content)
+      expect(message.result._meta?.[SERVER_INFO_KEY]).toMatchObject({
+        name: "mupx",
+      })
+    }
+  })
+
+  it("leaves a legacy client's reply exactly as the upstream sent it", async () => {
+    const framed = `event: message\ndata: ${JSON.stringify({
+      jsonrpc: "2.0",
+      id: 1,
+      result: { content: [] },
+    })}\n\n`
+    const { call } = gatewayWith(
+      () => new Response(framed, { headers: SSE_HEADERS }),
+      MERGED_ON
+    )
+    const response = await call(
+      MERGED,
+      post({
+        id: 1,
+        method: "tools/call",
+        params: { name: "shared_tool", arguments: { account: "alpha" } },
+      })
+    )
+    expect(await response.text()).toBe(framed)
+  })
+
+  it("keeps what the upstream said about its own result", async () => {
+    const { call } = gatewayWith(
+      () =>
+        Response.json({
+          jsonrpc: "2.0",
+          id: 2,
+          result: {
+            resultType: "input_required",
+            content: [],
+            _meta: { kept: true },
+          },
+        }),
+      MERGED_ON
+    )
+    const { result } = (await (
+      await call(MERGED, modernCall(2))
+    ).json()) as CallReply
+    expect(result.resultType).toBe("input_required")
+    expect(result._meta?.["kept"]).toBe(true)
+    expect(result._meta?.[SERVER_INFO_KEY]).toBeDefined()
+  })
+
+  it("passes on to a 2026-07-28 client whatever isn't a result", async () => {
+    const error = JSON.stringify({
+      jsonrpc: "2.0",
+      id: 3,
+      error: { code: -32602, message: "No such tool" },
+    })
+    const refused = gatewayWith(
+      () =>
+        new Response(error, {
+          headers: { "Content-Type": "application/json" },
+        }),
+      MERGED_ON
+    )
+    expect(await (await refused.call(MERGED, modernCall(3))).text()).toBe(error)
+
+    const broken = gatewayWith(
+      () => new Response("upstream fell over", { status: 500 }),
+      MERGED_ON
+    )
+    const response = await broken.call(MERGED, modernCall(3))
+    expect(response.status).toBe(500)
+    expect(await response.text()).toBe("upstream fell over")
+  })
+
+  it("streams to a 2026-07-28 client event by event, across chunk boundaries", async () => {
+    let release!: () => void
+    const released = new Promise<void>((resolve) => (release = resolve))
+    const encoder = new TextEncoder()
+    const answer = encoder.encode(
+      `data: ${JSON.stringify({
+        jsonrpc: "2.0",
+        id: 5,
+        result: { content: [{ type: "text", text: "perché" }] },
+      })}\n\n`
+    )
+    const accent = answer.indexOf(0xc3)
+    const { call } = gatewayWith(
+      () =>
+        new Response(
+          new ReadableStream({
+            async start(controller) {
+              controller.enqueue(
+                encoder.encode('data: {"method":"notifications/progress"}\n\n')
+              )
+              await released
+              controller.enqueue(answer.slice(0, accent + 1))
+              controller.enqueue(answer.slice(accent + 1, -1))
+              controller.enqueue(answer.slice(-1))
+              controller.close()
+            },
+          }),
+          { headers: SSE_HEADERS }
+        ),
+      MERGED_ON
+    )
+
+    const response = await call(MERGED, modernCall(5))
+    const reader = response.body!.getReader()
+    const decoder = new TextDecoder()
+    const first = await reader.read()
+    expect(decoder.decode(first.value)).toContain("notifications/progress")
+
+    release()
+    let rest = ""
+    for (;;) {
+      const { done, value } = await reader.read()
+      if (done) break
+      rest += decoder.decode(value, { stream: true })
+    }
+    const [message] = dataLines(rest)
+    expect(message!.result.resultType).toBe("complete")
+    expect(message!.result.content).toEqual([{ type: "text", text: "perché" }])
   })
 
   it("explains a missing or unknown account to the model", async () => {

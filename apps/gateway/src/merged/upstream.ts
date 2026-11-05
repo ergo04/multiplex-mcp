@@ -1,6 +1,6 @@
 import type { Connector } from "../config"
 import { forward, type UpstreamFetch } from "../proxy/passthrough"
-import { encodeHeaderValue } from "./protocol"
+import { encodeHeaderValue, withServerInfo } from "./protocol"
 
 /**
  * The revision the gateway speaks to upstreams, whatever the client speaks to
@@ -55,17 +55,21 @@ function isTool(value: unknown): value is Tool {
   )
 }
 
+function eventData(event: string): string {
+  return event
+    .split(/\r?\n/)
+    .filter((line) => line.startsWith("data:"))
+    .map((line) => line.slice(5).replace(/^ /, ""))
+    .join("\n")
+}
+
 /** A reply to one request, framed as JSON or as a short event stream. */
 function readMessage(contentType: string, body: string): UpstreamMessage {
   if (!contentType.includes("text/event-stream"))
     return JSON.parse(body) as UpstreamMessage
 
   for (const event of body.split(/\r?\n\r?\n/)) {
-    const data = event
-      .split(/\r?\n/)
-      .filter((line) => line.startsWith("data:"))
-      .map((line) => line.slice(5).replace(/^ /, ""))
-      .join("\n")
+    const data = eventData(event)
     if (!data) continue
     const message = JSON.parse(data) as UpstreamMessage
     // Notifications may come first; only the response carries a result.
@@ -73,6 +77,64 @@ function readMessage(contentType: string, body: string): UpstreamMessage {
       return message
   }
   throw new Error("the event stream ended without a response")
+}
+
+function modernResult(data: string): string {
+  let message: UpstreamMessage | null
+  try {
+    message = JSON.parse(data) as UpstreamMessage | null
+  } catch {
+    return data
+  }
+  const result = message?.result
+  if (typeof result !== "object" || result === null || Array.isArray(result))
+    return data
+  return JSON.stringify({
+    ...message,
+    // An upstream's own value goes last: it may be `input_required`.
+    result: withServerInfo({ resultType: "complete", ...result }),
+  })
+}
+
+function modernEvent(event: string): string {
+  const data = eventData(event)
+  const modern = modernResult(data)
+  if (modern === data) return event
+  const others = event.split(/\r?\n/).filter((l) => !l.startsWith("data:"))
+  return [...others, `data: ${modern}`].join("\n")
+}
+
+function modernEvents(): TransformStream<string, string> {
+  let pending = ""
+  return new TransformStream({
+    transform(chunk, controller) {
+      const parts = (pending + chunk).split(/(\r?\n\r?\n)/)
+      pending = parts.pop() ?? ""
+      for (let i = 0; i < parts.length; i += 2)
+        controller.enqueue(modernEvent(parts[i]!) + parts[i + 1]!)
+    },
+    flush(controller) {
+      if (pending) controller.enqueue(modernEvent(pending))
+    },
+  })
+}
+
+/**
+ * An upstream answers in UPSTREAM_VERSION, whose results have no `resultType`,
+ * while a 2026-07-28 client refuses a result without one: the fallback to
+ * "complete" is only for servers that declared an earlier revision, and this
+ * endpoint declared 2026-07-28. Events are rewritten one at a time, so a long
+ * reply still streams.
+ */
+export async function modernBody(upstream: Response): Promise<BodyInit | null> {
+  if (!upstream.body) return null
+  const contentType = upstream.headers.get("content-type") ?? ""
+  if (!contentType.includes("text/event-stream"))
+    return modernResult(await upstream.text())
+  return upstream.body
+    .pipeThrough(new TextDecoderStream())
+    .pipeThrough(modernEvents())
+    .pipeThrough(new TextEncoderStream())
 }
 
 export async function listAccountTools(
