@@ -7,8 +7,8 @@
 
 **Multiplex MCP: one connector per account.** Use two Resend accounts, three Linear
 workspaces, or any other MCP service several times over, from claude.ai (web,
-desktop, mobile), Claude Code, ChatGPT, Codex or any MCP client that can send a
-header.
+desktop, mobile), Claude Code, ChatGPT, Codex, Raycast or any MCP client that can
+send a header.
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/ergo04/multiplex-mcp/tree/main/apps/gateway)
 
@@ -33,20 +33,20 @@ account its own URL and swaps your token for that account's API key on the way
 upstream:
 
 ```
-claude.ai, ChatGPT, Codex ─ OAuth, approved with your password ──┐
-Claude Code, Cursor, … ──── Authorization: Bearer <client token> ┤
-                                                                 ▼
-                     https://<your-gateway>/m/<service>/<account>/mcp
-                                                                 │ your token out,
-                                                                 │ the account's key in
-                                                                 ▼
-                        https://mcp.resend.com/mcp, https://mcp.linear.app/mcp, …
+claude.ai, ChatGPT, Codex, Raycast ─ OAuth, approved with your password ──┐
+Claude Code, Cursor, … ───────────── Authorization: Bearer <client token> ┤
+                                                                          ▼
+                              https://<your-gateway>/m/<service>/<account>/mcp
+                                                                          │ your token out,
+                                                                          │ the account's key in
+                                                                          ▼
+                                 https://mcp.resend.com/mcp, https://mcp.linear.app/mcp, …
 ```
 
-- **claude.ai**, and ChatGPT or Codex once you allow them, find the gateway's
-  own OAuth server and sign in with their Client ID Metadata Document; you
-  approve on a consent page with your password. The token a client gets opens
-  that one connector and nothing else.
+- **claude.ai**, and ChatGPT, Codex or Raycast once you allow them, find the
+  gateway's own OAuth server and sign in with their Client ID Metadata Document;
+  you approve on a consent page with your password. The token a client gets
+  opens that one connector and nothing else.
 - **Claude Code**, or any MCP client that can send a header, can use a static
   token instead.
 - Requests are forwarded as they are and responses stream back (SSE included).
@@ -101,10 +101,11 @@ initiatives.
      claude mcp add --transport http resend-work https://<your-gateway>/m/resend/work/mcp --header "Authorization: Bearer <token>"
      ```
 
-   - ChatGPT and Codex: add their metadata documents to `ALLOWED_CLIENTS`
-     (see [Configuration](#configuration)), then add the URL as a connector and
-     approve it the same way. In ChatGPT a custom connector needs developer
-     mode.
+   - ChatGPT, Codex and Raycast: add their metadata documents to
+     `ALLOWED_CLIENTS` (see [Configuration](#configuration)), then add the URL
+     as a connector and approve it the same way. In ChatGPT a custom connector
+     needs developer mode; in Raycast use _Install MCP Server_ with the HTTP
+     transport.
    - Any other MCP client that can send a header (Cursor, VS Code, Gemini CLI,
      …): use a client token as with Claude Code.
 
@@ -144,10 +145,10 @@ the dashboard and its code never changes.
 
 By default the gateway allows claude.ai's and Claude Code's metadata documents.
 Setting `ALLOWED_CLIENTS` replaces that list, so name those two again. With
-ChatGPT and Codex added:
+ChatGPT, Codex and Raycast added:
 
 ```
-https://claude.ai/oauth/mcp-oauth-client-metadata,https://claude.ai/oauth/claude-code-client-metadata,https://chatgpt.com/oauth/client.json,https://chatgpt.com/oauth/codex/client.json
+https://claude.ai/oauth/mcp-oauth-client-metadata,https://claude.ai/oauth/claude-code-client-metadata,https://chatgpt.com/oauth/client.json,https://chatgpt.com/oauth/codex/client.json,https://www.raycast.com/.well-known/oauth-client-metadata/raycast.json
 ```
 
 ChatGPT signs in with that one stable document because the gateway returns the
